@@ -1,0 +1,7 @@
+{
+    "title": "计数器",
+    "counter_one": "1 次选择",
+    "counter_other": "{{count}} 次选择",
+    "counter_zero": "没有选择",
+    "back-to-home": "返回"
+  }
