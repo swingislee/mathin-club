@@ -1,0 +1,24 @@
+.runwayGroup {
+    grid-column: 1 / 11;
+    position:relative;
+    align-items: center;
+    background-color: yellow;
+}
+
+.dashboardContainer{
+    left:0%;
+    right:90%;
+    height:100%;
+    position:absolute;
+   
+}
+
+
+.userDefinedLabel {
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.userDefinedInput {
+    width: 50px;
+}

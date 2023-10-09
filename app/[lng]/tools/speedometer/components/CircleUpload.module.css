@@ -1,0 +1,198 @@
+.modalContainer {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* to ensure it overlays other elements */
+    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+    width: 80vw;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+}
+
+
+.cropContainer {
+    width: 300px; /* Adjust this to your desired width */
+    height: 300px; /* Adjust this to your desired height */
+    border-radius: 0; /* Ensuring no rounded corners */
+    position: relative; /* So that the cropping window positions inside this container */
+    overflow: hidden; /* Optional, to ensure the out-of-bounds part of the image isn't shown */
+    padding-bottom: 40px; /* space for the confirm button */
+    z-index: 2000;
+}
+
+.cropButton {
+    position: relative;
+    z-index: 2000;
+}
+
+.cancleCropButton {
+    position: relative;
+    z-index: 2000;
+}
+
+
+.draggableContainer {
+    position: relative;    
+    left:10%;
+    right:10%;
+    height: 100%;    
+    background-color:aqua;
+}
+
+
+.people {
+    z-index:1;
+    
+}
+
+.circle {
+    width: 50px; /* adjust size as needed */
+    height: 50px;
+    border-radius: 50%; /* makes the div circular */
+    background-color: white;
+    display: flex;
+    align-items: center; /* vertically center the content */
+    justify-content: center; /* horizontally center the content */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+
+
+.positon {
+    width: 50px;
+    height: 25px;
+    background-color: ghostwhite;
+    align-items: center; /* vertically center the content */
+    justify-content: center; /* horizontally center the content */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    cursor: grab;
+}
+
+    .positon:active {
+        cursor: grabbing !important;
+    }
+
+
+.vehicle {
+    width: 50px;
+    height: 25px;
+    background-color: antiquewhite;
+    display: flex;
+    align-items: center; /* vertically center the content */
+    justify-content: center; /* horizontally center the content */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    z-index:6;
+}
+
+.contextMenu {
+    position: absolute;
+    width: 200px; /* This is the diameter of the circle formation. Adjust as needed */
+    height: 200px;
+    top: 0px; /* Half of the diameter to center vertically */
+    left: 0px; /* To center horizontally */
+    top: -22px;
+    left:-75px;
+    z-index: 10;
+}
+
+
+
+.circleButton {
+    position: absolute;
+    width: 40px; /* adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* makes the div circular */
+    top: 50%; /* start from the center of the contextMenu */
+    left: 50%; /* start from the center of the contextMenu */
+    display: flex;
+    align-items: center; /* vertically center the content */
+    justify-content: center; /* horizontally center the content */
+    background-size: cover;
+    background-position: center;
+}
+
+    /* Position the buttons in a circle around the vehicle button */
+    .circleButton:nth-child(1) {
+        transform: translate(-50%, -50%) translate(0, -75px);        
+    }
+    /* Top button */
+    .circleButton:nth-child(2) {
+        transform: translate(-50%, -50%) translate(53px, -53px);
+    }
+    /* Top-right button */
+    .circleButton:nth-child(3) {
+        transform: translate(-50%, -50%) translate(75px, 0);
+    }
+    /* Right button */
+    .circleButton:nth-child(4) {
+        transform: translate(-50%, -50%) translate(53px, 53px);
+    }
+    /* Bottom-right button */
+    .circleButton:nth-child(5) {
+        transform: translate(-50%, -50%) translate(0, 75px);
+    }
+    /* Bottom button */
+    .circleButton:nth-child(6) {
+        transform: translate(-50%, -50%) translate(-53px, 53px);
+    }
+    /* Bottom-left button */
+    .circleButton:nth-child(7) {
+        transform: translate(-50%, -50%) translate(-75px, 0);
+    }
+    /* Left button */
+    .circleButton:nth-child(8) {
+        transform: translate(-50%, -50%) translate(-53px, -53px);
+    }
+/* Top-left button */
+
+.inputContainer {
+    position: absolute; /* Absolute positioning within .contextMenu */
+    top:calc( 50% + 10px); /* Distance from the bottom. Adjust as needed */
+    left: 50%; /* Center horizontally */
+    transform: translate(-50%,-50%); /* Adjust for true centering */
+    display: flex; /* To align the children (input and buttons) in a row */
+    align-items: center; /* Vertically align the children */
+}
+
+/* Sample styling for the input and buttons. Adjust as needed */
+.positionInput {
+    flex: 1; /* Take available space */
+    padding: 5px;
+    border: 1px solid #ccc;
+    width:50px;
+}
+
+.triangleButton {
+    width: 15px;
+    height: 15px;
+    background-color: #ddd; /* Placeholder color */
+    margin: 0 5px; /* Spacing between the buttons and the input */
+}
+.active {
+    background-color: green;
+}
+
+.inactive {
+    background-color: gray;
+}
+
+
+    /* Left triangle styling */
+    .triangleButton:first-child {
+        clip-path: polygon(0 50%, 100% 0, 100% 100%); /* Creates a right-pointing triangle */
+    }
+
+    /* Right triangle styling */
+    .triangleButton:last-child {
+        clip-path: polygon(100% 50%, 0 0, 0 100%); /* Creates a left-pointing triangle */
+        
+    }

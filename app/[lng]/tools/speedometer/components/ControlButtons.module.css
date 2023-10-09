@@ -1,0 +1,7 @@
+.control-buttons {
+    grid-column: 2;
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+    max-height: 25px ;
+}

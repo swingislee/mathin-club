@@ -1,0 +1,147 @@
+
+.ruler {
+    bottom: 15%;
+    left: calc(10% + 25px);
+    right: calc(10% + 25px);
+    height: 60px; /* Arbitrary initial height; can be adjusted */
+    cursor: default;
+    position: absolute;
+    z-index: 3000;
+    background-color: rgba(211, 211, 211, 0.5); /* Translucent light gray */
+}
+
+
+    .ruler::before, .ruler::after {
+        content: "";
+        position: absolute;
+        height: 100%;
+        width: 4px;
+        background-color: black;
+    }
+
+    .ruler::before {
+        left: -2px;
+    }
+
+    .ruler::after {
+        right: -2px;
+    }
+
+
+.dragHandle {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    z-index: 10;
+    background: white;
+    cursor: grab;
+}
+
+    .dragHandle:active {
+        cursor: grabbing !important;
+    }
+
+
+/* Final Architectural design marking style based on the description */
+
+.brace {
+    position: absolute;
+    bottom: 15%; /* Adjusted to position above the bottom */
+    left: 0;
+    right: 0;
+    height: 2em; /* Based on the height of the text label */
+    z-index: 6;
+}
+
+
+
+
+.horizontalLine {
+    position: absolute;
+    top: 65%;
+    left: 2px; /* Shifted slightly to start after the vertical line */
+    right: 2px; /* Shifted slightly to end before the vertical line */
+    height: 2px;
+    background-color: black;
+}
+
+.startingGun {
+    position: absolute;
+    bottom: 1px;
+    left: 1px;
+}
+
+
+
+.lengthLabel {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 5px;
+    font-size: 1.5vw;
+    z-index: 10;
+}
+
+.lengthLabelButton {
+    user-select: none; /* standard syntax */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+}
+
+
+    .scaleArea {
+        position: absolute;
+        bottom: 68%; /* Positioning it above the ruler */
+        width: 100%;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        background-color: rgba(211, 211, 211, 0.5);
+    }
+
+.tickMark {
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    height: 100%;
+    background-color: black;
+}
+
+/* Starting and finishing lines */
+.startingLine, .finishingLine {
+    height: 100%;
+    width: 4px;
+    background-color: white;
+    position: absolute;
+    z-index: 2;
+}
+
+.startingLine {
+    left: calc(10% + 25px);
+    transform: translateX(-50%);
+}
+
+.finishingLine {
+    right: calc(10% + 10px);
+    transform: translateX(+50%);
+}
+
+.firstTickContainer {
+    background-color: white;
+    position: absolute;
+    z-index: 8;
+}
+
+.tickMark {
+    position: absolute;
+    bottom: 0;
+    width: 1px;
+    height: 100%;
+    background-color: black;
+}
+
+.tickLabel {
+
+}
