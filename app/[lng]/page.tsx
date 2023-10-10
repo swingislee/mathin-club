@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar"
 import { useTranslation } from '../i18n'
 import { Setlng } from "./components/Setmenu/Setlanguage"
 import Image from "next/image"
+import ColorScheme from "./components/Setmenu/Day-to-night/ColorScheme"
 
 export default async function Page({ params: { lng } }) {
   const { t } = await useTranslation(lng)
@@ -11,6 +12,7 @@ export default async function Page({ params: { lng } }) {
       <Navbar lng={lng} />
       
       <Setlng lng={lng} />
+      
     </>
   )
 }

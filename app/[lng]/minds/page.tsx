@@ -12,9 +12,7 @@ export default async function Page({ params: { lng } }) {
         {t('back')}
       </Link>
       <br />
-      <Link href={`/${lng}/tools/speedometer`}>
-        {t('speedometer')}
-      </Link>
+
       <Setlng lng={lng} />
     </>
   )

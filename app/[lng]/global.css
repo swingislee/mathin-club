@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+    color: #737373;
+    background-color:#f0f9ff;
+}
+
+.dark body {
+    color: rgb(253, 246, 225);  /*rgb(252,237.195)*/
+    background-color: #0c4a6e;
+}
+

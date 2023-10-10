@@ -7,5 +7,14 @@
     "i18n-ally.displayLanguage": "zh",
     "i18n-ally.namespace": true,
     "i18n-ally.localeCountryMap": {"CHINA":"zh","ENGLISH":"en"},    
-  
+
+    "tailwindCSS.includeLanguages": {
+        "plaintext": "html"
+      },
+  "editor.quickSuggestions": {
+  "strings": "on"
+},
+"files.associations": {
+    "*.css": "tailwindcss"
+  }
 }
