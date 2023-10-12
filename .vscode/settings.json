@@ -5,16 +5,19 @@
     "i18n-ally.languageTagSystem": "legacy",
     "i18n-ally.sourceLanguage": "en",
     "i18n-ally.displayLanguage": "zh",
-    "i18n-ally.namespace": true,
-    "i18n-ally.localeCountryMap": {"CHINA":"zh","ENGLISH":"en"},    
+    "i18n-ally.keystyle": "nested",   
+    "i18n-ally.localeCountryMap": {"CHINA":"zh","ENGLISH":"en"}, 
+	  "i18n-ally.pathMatcher": "{locale}/{namespaces}.{ext}",
 
     "tailwindCSS.includeLanguages": {
         "plaintext": "html"
       },
-  "editor.quickSuggestions": {
-  "strings": "on"
-},
-"files.associations": {
-    "*.css": "tailwindcss"
-  }
+    "editor.quickSuggestions": {
+    "strings": "on"
+      },
+
+
+    "files.associations": {
+          "*.css": "tailwindcss"
+      }
 }

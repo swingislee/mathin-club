@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import RunwayGroup from './RunwayGroup';
 import ControlButtons from './ControlButtons';
-import styles from './MainContainer.module.css';
 import RunwayLength from './RunwayLength';
 import Timer from './Timer';
 import { useSpeedData } from './SpeedDataContext';
@@ -28,10 +27,10 @@ function MainContainer () {
     }
 
     return (
-        <div className={styles["main-container"]}>
+        <div className="grid grid-rows-6 grid-cols-10 gap-2.5 h-full">
             <Timer />
             {Array.from({ length: numOfRunways }).map((_, index) => (
-                <RunwayGroup key={index} gridRow={index + 3} runwayIndex={index} />
+                <RunwayGroup key={index} gridRow={index + 2} runwayIndex={index} />
             ))}
             <RunwayLength />
             <ControlButtons onAddRunway={onAddRunway} onRemoveRunway={onRemoveRunway} style={{ gridRow: buttonRowPosition }} />

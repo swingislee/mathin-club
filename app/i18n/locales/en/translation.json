@@ -1,9 +1,9 @@
 {
-    "title": "Math Note",
-    "tools": "tools",
-    "minds": "minds",
-    "story": "story",
-    "home": "home",
-    "games": "games",
-    "terms":"terms"
+  "title": "Math Note",
+  "tools": "Tools",
+  "minds": "Minds",
+  "story": "Story",
+  "home": "home",
+  "games": "Games",
+  "terms": "Terms"
 }

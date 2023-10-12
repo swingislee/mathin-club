@@ -173,10 +173,9 @@ function CircleUpload({ runwayIndex }) {
     };
  
 
- 
 
     return (
-        <div className={styles.draggableContainer}>
+        <div className={styles.draggableContainer }>
             <motion.div
                 animate={controls}
                 className={styles.people}

@@ -6,7 +6,7 @@ acceptLanguage.languages(languages)
 
 export const config = {
   // matcher: '/:lng*'
-  matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)']
+  matcher: ['/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js|\\.jpg|\\.jpeg|\\.png|\\.gif|\\.svg).*)']
 }
 
 export function middleware(req) {
@@ -16,11 +16,14 @@ export function middleware(req) {
   if (!lng) lng = fallbackLng
 
   // Redirect if lng in path is not supported
+  const staticExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.css', '.js']; // Add any other extensions you need.
+
   if (
-    !languages.some(loc => req.nextUrl.pathname.startsWith(`/${loc}`)) &&
-    !req.nextUrl.pathname.startsWith('/_next')
+    !languages.some(lng => req.nextUrl.pathname.startsWith(`/${lng}`)) &&
+    !req.nextUrl.pathname.startsWith('/_next') &&
+    !staticExtensions.some(ext => req.nextUrl.pathname.endsWith(ext))
   ) {
-    return NextResponse.redirect(new URL(`/${lng}${req.nextUrl.pathname}`, req.url))
+    return NextResponse.redirect(new URL(`/${lng}${req.nextUrl.pathname}`, req.url));
   }
 
   if (req.headers.has('referer')) {

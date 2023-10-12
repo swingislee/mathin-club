@@ -4,7 +4,7 @@ import { languages } from '@/app/i18n/settings'
 
 export const SetlngBase = ({ t, lng }) => {
   return (
-    <div style={{ marginTop: 50 }}>
+    <div>
       <Trans i18nKey="languageSwitcher" t={t}>
         Switch from <strong>{{lng}}</strong> to:{' '}
       </Trans>

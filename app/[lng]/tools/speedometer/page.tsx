@@ -1,22 +1,14 @@
 'use client'
 
-import Link from 'next/link'
-import { useTranslation } from '@/app/i18n/client'
-import { Setlng } from '../../components/Setmenu/Setlanguage/client'
 import MainContainer from './components/MainContainer';
+import {SpeedDataProvider} from './components/SpeedDataContext';
 
 export default function Page({ params: { lng } }) {
-  const { t } = useTranslation(lng, 'speedometer')
   return (
-    <>
+    <SpeedDataProvider>
+    <div className="absolute w-screen top-12 bottom-0 ">
       <MainContainer />
-
-      <Link href={`/${lng}`}>
-        <button type="button">
-          {t('back-to-home')}
-        </button>
-      </Link>
-      <Setlng lng={lng} />
-    </>
+    </div>
+    </SpeedDataProvider>
   )
 }

@@ -2,7 +2,7 @@
     grid-column: 1 / 11;
     position:relative;
     align-items: center;
-    background-color: yellow;
+    background-color:rgb(253, 246, 225) ;
 }
 
 .dashboardContainer{
