@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import Draggable from 'react-draggable';
+import { motion } from 'framer-motion';
 import styles from './RunwayLength.module.css';
 import { useSpeedData } from './SpeedDataContext.js';
+
 
 function RunwayLength(props) {
     const { handleStartingGunClick, overallDistance, setOverallDistance, reoverallDistance, unitPixelValue, useLongPress  } = useSpeedData();
@@ -48,10 +49,10 @@ function RunwayLength(props) {
 
     const calculatedScaleSpacing = tickInterval * unitPixelValue;
     const tickMarks = [];
-    let position = calculatedScaleSpacing;
+    let position = 24;
 
-    while (position < (0.8 * window.innerWidth) - 50) {
-        if (position >= (0.8 * window.innerWidth) - 50) {
+    while (position <= (0.8 * window.innerWidth) - 24) {
+        if (position > (0.8 * window.innerWidth) - 24) {
             break;  // Exit the loop if position exceeds the limit
         }
 
@@ -90,15 +91,13 @@ function RunwayLength(props) {
 
 
     return (
-        <div className={styles.runwayLength}>
-            <div className={styles.startingLine}></div>
-            <div className={styles.finishingLine}></div>
-            <Draggable axis="y" handle={`.${styles.dragHandle}`}>
-                <div className={styles.ruler}>
-                    <div className={styles.scaleArea}>
+            <motion.div drag="y">
+                <div className="absolute h-16 bg-sky-900 bg-opacity-50 left-[10%] right-[10%] z-30">
+                    <div className='absolute w-100 t-0 h-6 flex items-center'>
                         {tickMarks.map((pos, idx) => (
-                            <div key={idx} className={styles.tickMark} style={{ left: pos }}>
-                                {((idx + 1) * tickInterval).toFixed(decimalPlaces)}
+                            <div key={idx} className='absolute flex w-auto h-full px-1 bg-transparent' style={{ left: pos }}>
+                                <div className='w-0.5 translate-x-[-5px] h-full bg-white'></div>
+                                {((idx) * tickInterval).toFixed(decimalPlaces)}
                             </div>
                         ))}
                     </div>
@@ -116,8 +115,7 @@ function RunwayLength(props) {
                     </button>
                     <div className={styles.dragHandle}>Drag Me</div> {/* Drag handle added here */}
                 </div>
-            </Draggable>
-        </div>
+            </motion.div>
     );
 
 }

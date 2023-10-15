@@ -27,13 +27,13 @@ function MainContainer () {
     }
 
     return (
-        <div className="grid grid-rows-6 grid-cols-10 gap-2.5 h-full">
+        <div className="relative w-full h-full">
             <Timer />
             {Array.from({ length: numOfRunways }).map((_, index) => (
-                <RunwayGroup key={index} gridRow={index + 2} runwayIndex={index} />
+                <RunwayGroup key={index} runwayIndex={index} />
             ))}
-            <RunwayLength />
-            <ControlButtons onAddRunway={onAddRunway} onRemoveRunway={onRemoveRunway} style={{ gridRow: buttonRowPosition }} />
+            <RunwayLength/>
+            <ControlButtons onAddRunway={onAddRunway} onRemoveRunway={onRemoveRunway} />
         </div>
     );
 }

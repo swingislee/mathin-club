@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { useTranslation } from '../../i18n'
-import { Setlng } from "../components/Setmenu/Setlanguage"
-
+import Navbar from "../components/Navbar"
 
 export default async function Page({ params: { lng } }) {
   const { t } = await useTranslation(lng, 'tools')
@@ -10,19 +9,18 @@ export default async function Page({ params: { lng } }) {
     { path: `/${lng}/tools/others`, title: t('others'), thumbnail: '/tools/others.png' },
   ];
   
-
-
   return (
     <div className="absolute w-screen top-12 bottom-0 ">
       <h1 className="text-2xl dl:text-5xl font-bold text-center my-4 dl:my-8">{t('title')}</h1>
       <div className="p-4 flex justify-center flex-wrap">
-      {toolsbox.map((tool) => (
-        <Link key={tool.path} href={tool.path} className="block w-64 m-2 relative shadow-lg">
-            <div className="h-40 bg-center bg-cover" style={{backgroundImage: `url(${tool.thumbnail})`}}></div>
-            <div className="mt-2 text-center font-bold shadow">{tool.title}</div>
-        </Link>
-      ))}
+        {toolsbox.map((tool) => (
+          <Link key={tool.path} href={tool.path} className="block w-64 m-2 relative shadow-lg">
+              <div className="h-40 bg-center bg-cover" style={{backgroundImage: `url(${tool.thumbnail})`}}></div>
+              <div className="mt-2 text-center font-bold shadow">{tool.title}</div>
+          </Link>
+        ))}
       </div>
+      <Navbar lng={lng} page="games"/>
     </div>
   )
 } 

@@ -9,7 +9,7 @@ function Timer() {
     const [isActive, setIsActive] = useState(false);
     const [userTime, setUserTime] = useState(null);
     const [remainingTime, setRemainingTime] = useState(null);
-    const { handleTimeSet } = useSpeedData();
+    const { handleTimeSet,handleStartingGunClick  } = useSpeedData();
 
     useEffect(() => {
         let interval;
@@ -50,9 +50,8 @@ function Timer() {
         if (handleTimeSet) {
             handleTimeSet(e.target.value);
         }
-        console.log("Setting time in Timer component:", e.target.value);
-
     };
+    
     return (
         <div className={styles.TimeDisplayWindow}>
             <span>{userTime ? `${remainingTime}s` : `${seconds}s`}</span>

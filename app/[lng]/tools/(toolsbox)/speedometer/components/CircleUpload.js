@@ -1,3 +1,4 @@
+'use client'
 //CircleUpload.js  Control the movement of runway characters and upload skins
 import React, { useEffect, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
@@ -5,7 +6,27 @@ import styles from './CircleUpload.module.css';
 import getCroppedImg from './cropImage';
 import { useSpeedData } from './SpeedDataContext';
 import { motion, useAnimation, useMotionValue } from 'framer-motion';
+import { Image } from 'next/dist/client/image-component';
 
+
+const spinIn = {
+    hidden: { opacity: 0, scale: 0.8, rotate: 0 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      rotate: 360,
+      transition: {
+        duration: 0.5,
+        ease: "easeInOut"
+      }
+    }
+  };
+  
+  const menuVariants = {
+    open: { opacity: 1, transition: { duration: 0.5 } },
+    closed: { opacity: 0, transition: { duration: 0.5 } }
+  };
+  
 
 function CircleUpload({ runwayIndex }) {
     const { handleDragStart, handleDragStop, unitPixelValue, useLongPress, calculatedTimes, calculatedDistances, isGunFired, setIsGunFired} = useSpeedData();
@@ -19,7 +40,7 @@ function CircleUpload({ runwayIndex }) {
     const [croppedArea, setCroppedArea] = useState(null);
     const [dragStartX, setDragStartX] = useState(0); 
     const [inputId] = useState(`circleUploadInput-${Date.now()}-${Math.random()}`);
-    const [vehicleBackground, setVehicleBackground] = useState("");
+    const [vehicleBackground, setVehicleBackground] = useState("/tools/speedometer/08-upload.png");
     const [uploadTarget, setUploadTarget] = useState(null);  // 'head' or 'vehicle'
     const [isFlipped, setIsFlipped] = useState(false);
     const [activeFlipped, setActiveFlipped] = useState(false);
@@ -29,34 +50,19 @@ function CircleUpload({ runwayIndex }) {
     const xPosition = useMotionValue(0);
     const controls = useAnimation();
     const [inputValue, setInputValue] = useState("");
+    const peopleRef = useRef(null);
 
-
+//保留两位小数的函数组件
     function formatnumb(data) {
         const absoluteData = Math.abs(data);
 
         // Check if absolute data is between 0 and 1
         if (0 < absoluteData && absoluteData < 1) {
-            return parseFloat(data.toPrecision(2)).toString();
+            return parseFloat(data.toPrecision(1)).toString();
         } else {
-            return parseFloat(data.toFixed(2)).toString();
+            return parseFloat(data.toFixed(1)).toString();
         }
     }
-
-    useEffect(() => {
-        const updatePosition = (value) => {
-            const position = value / unitPixelValue;
-            setCurrentX(position);
-        };
-
-        // Subscribe to xPosition's changes
-        const unsubscribe = xPosition.onChange(updatePosition);
-
-        // Directly call the logic when the effect runs (for changes in unitPixelValue)
-        updatePosition(xPosition.get());
-
-        // Cleanup the subscription when the component unmounts
-        return () => unsubscribe();
-    }, [xPosition, unitPixelValue]);
 
 
     const handleImageChange = (e) => {
@@ -71,8 +77,7 @@ function CircleUpload({ runwayIndex }) {
         if (file) {
             reader.readAsDataURL(file);
         }
-    };
-
+};
     const handleConfirmCrop = async () => {
         if (!croppedArea) return;
         const croppedImage = await getCroppedImg(tempImage, croppedArea);
@@ -100,27 +105,22 @@ function CircleUpload({ runwayIndex }) {
             setShowMenu(!showMenu);
         },
         () => {
-           
+            setVehicleBackground("/tools/speedometer/08-upload.png")
         }
     );
           
-    const handleDirectionLeftClick = () => {
- 
+    const handleDirectionLeftClick = () => { 
         const newIsFlipped = !isFlipped;
         setIsFlipped(newIsFlipped);
         setActiveFlipped(newIsFlipped);
         setActiveButton('left');
     }
 
-
-
     const handleDirectionRightClick = () => {
         const newIsFlipped = !isFlipped;
         setIsFlipped(newIsFlipped);
         setActiveFlipped(newIsFlipped);
-
-        setActiveButton('right');
-        
+        setActiveButton('right');        
     }
 
     const handleCircleButtonClick = (imgSrc) => {
@@ -129,31 +129,40 @@ function CircleUpload({ runwayIndex }) {
 
     useEffect(() => {
         const handleClickOutside = (e) => {
-            if (!e.target.closest(`.${styles.vehicle}`) &&
-                !e.target.closest(`.${styles.circleContainer}`) &&
-                !e.target.closest(`.${styles.triangleButton}`) &&
-                !e.target.closest(`.${styles.positionInput}`)) {
-                setShowMenu(false);
-            }
+            if (peopleRef.current && !peopleRef.current.contains(e.target)
+                // ... You can add more refs and checks for other elements
+            ) {setShowMenu(false);}
         };
-
-        if (showMenu) {  // Only add the listener if showMenu is true
-            document.addEventListener('click', handleClickOutside);
-        }
-
-        return () => {
-            document.removeEventListener('click', handleClickOutside);  // Cleanup the listener
-        };
+        if (showMenu) {document.addEventListener('click', handleClickOutside)}// Only add the listener if showMenu is true
+        return () => {document.removeEventListener('click', handleClickOutside);};// Cleanup the listener
     }, [showMenu]);  // useEffect is dependent on showMenu, so it'll run whenever showMenu changes
 
+    //组件显示当前位置
+    useEffect(() => {
+        const updatePosition = (value) => {
+            const position = value / unitPixelValue;
+            setCurrentX(position);
+        };
+    
+        // Subscribe to xPosition's changes using the new method
+        const unsubscribe = xPosition.on("change", updatePosition);
+    
+        // Directly call the logic when the effect runs (for changes in unitPixelValue)
+        updatePosition(xPosition.get());
+    
+        // Cleanup the subscription when the component unmounts
+        return () => unsubscribe();
+    }, [xPosition, unitPixelValue]);
+  
 
+    //根据命令执行运动
     useEffect(() => {
         if (isGunFired) {
             const movementDistanceValue = (calculatedDistances[runwayIndex]);
             const durationValue = (calculatedTimes[runwayIndex]);
 
             const movementDistance = movementDistanceValue * unitPixelValue;
-            const currentValue = currentX * unitPixelValue;
+            const currentValue = xPosition.get();
 
             const targetX = activeButton === 'right' ? currentValue + movementDistance : currentValue - movementDistance;
 
@@ -164,10 +173,12 @@ function CircleUpload({ runwayIndex }) {
                 setIsGunFired(false);
             });
         }
-    }, [isGunFired, currentX, activeButton, calculatedDistances, calculatedTimes, unitPixelValue, runwayIndex]);
+    }, [isGunFired, xPosition, activeButton, calculatedDistances, calculatedTimes, unitPixelValue, runwayIndex]);
 
 
     const handlePositionInputBlur = () => {
+            // If inputValue is empty, do nothing.
+        if (inputValue === "") return;
         const newPosition = parseFloat(inputValue) * unitPixelValue;
         xPosition.set(newPosition);
     };
@@ -175,13 +186,16 @@ function CircleUpload({ runwayIndex }) {
 
 
     return (
-        <div className={styles.draggableContainer }>
+        <div className="absolute left-[10%] right-[10%] h-24 bg-red-400">
+            <div className='absolute left-6 w-1 h-full -translate-x-1/2 bg-white'></div>
+            <div className='absolute right-6 w-1 h-full translate-x-1/2 bg-white'></div>
             <motion.div
                 animate={controls}
-                className={styles.people}
+                ref={peopleRef}
+                className="z-10 h-24 w-12"
                 drag="x"
                 style={{ x: xPosition }} // Use xPosition motionValue here
-                dragConstraints={{ left: 0 }} // This ensures the drag doesn't go beyond its start position.
+                dragConstraints={{ left: 0,right:8000 }} // This ensures the drag doesn't go beyond its start position.
                 dragElastic={0}
                 dragMomentum={false}
                 onDragStart={(event, info) => {
@@ -202,6 +216,7 @@ function CircleUpload({ runwayIndex }) {
                             setIsFlipped(!activeFlipped);
                         }
                     }
+                    console.log(info.point.x,lastX)
                     // Update the lastX for the next comparison
                     setLastX(info.point.x);
                 }}
@@ -210,13 +225,11 @@ function CircleUpload({ runwayIndex }) {
                     const distance = distancePixels / unitPixelValue;
                     handleDragStop(runwayIndex, distance);
                     setIsFlipped(activeFlipped);
-                    setDragStartX(info.point.x);
                 }}
             >
-                <div className={styles.people}>
                     <button
                         {...longPressHead}
-                        className={styles.circle}
+                        className="w-12 h-12 rounded-full bg-white flex items-center justify-center bg-cover bg-center relative"
                         style={{ backgroundImage: `url(${image})` }}
                         onContextMenu={handleRightClick}
                     >
@@ -228,68 +241,73 @@ function CircleUpload({ runwayIndex }) {
                             onChange={handleImageChange}
                         />                        
                     </button>
-                    <div>
-                        <button
+                    <button  
                         {...longPressVehicle}
-                        className={styles.vehicle}
-                        style={{
-                            backgroundImage: `url(${vehicleBackground})`,
-                            transform: isFlipped ? 'scaleX(-1)' : 'scaleX(1)'
-                            }}>
-                        </button>
-                    </div>
+                        className='w-12 h-6 relative bg-white'
+                        style={{transform: isFlipped ? 'scaleX(-1)' : 'scaleX(1)',
+                        }}>
+                    <Image src={vehicleBackground} width={48} height={24} alt='walk'/>
+                    </button>
                     {showMenu && (
-                        <div className={styles.contextMenu}>
+                        <div className="absolute w-48 h-48 top-[-22px] left-[-75px] z-10">
                             <div className={styles.circleContainer}>
                                 <button
                                     className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/01-walk.png")}
-                                    style={{ backgroundImage: "url('../img/01-walk.png')" }}
-                                ></button>
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/01-walk.png")}
+                                ><Image src="/tools/speedometer/01-walk.png" width={48} height={24} alt='walk'/>
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/02-bicycle.png")}
-                                    style={{ backgroundImage: "url('../img/02-bicycle.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/02-bicycle.png")}
+                                >
+                                    <Image src="/tools/speedometer/02-bicycle.png" width={48} height={24} alt='bicycle' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/03-car.png")}
-                                    style={{ backgroundImage: "url('../img/03-car.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/03-car.png")}
+                                >
+                                    <Image src="/tools/speedometer/03-car.png" width={48} height={24} alt='car' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/04-plane.png")}
-                                    style={{ backgroundImage: "url('../img/04-plane.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/04-plane.png")}
+                                >
+                                    <Image src="/tools/speedometer/04-plane.png" width={48} height={24} alt='plane' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/05-rocket.png")}
-                                    style={{ backgroundImage: "url('../img/05-rocket.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/05-rocket.png")}
+                                >
+                                    <Image src="/tools/speedometer/05-rocket.png" width={48} height={24} alt='rocket' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/06-cloud.png")}
-                                    style={{ backgroundImage: "url('../img/06-cloud.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/06-cloud.png")}
+                                >
+                                    <Image src="/tools/speedometer/06-cloud.png" width={48} height={24} alt='cloud' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
-                                    onClick={() => handleCircleButtonClick("../img/07-wormhole.png")}
-                                    style={{ backgroundImage: "url('../img/07-wormhole.png')" }}
-                                ></button>
+                                    className={styles.circleButton}
+                                    onClick={() => handleCircleButtonClick("/tools/speedometer/07-wormhole.png")}
+                                >
+                                    <Image src="/tools/speedometer/07-wormhole.png" width={48} height={24} alt='wormhole' />
+                                </button>
 
                                 <button
-                                    className={`${styles.circleButton}`}
+                                    className={styles.circleButton}
                                     onClick={() => {
                                         setUploadTarget('vehicle');
                                         document.getElementById(inputId).click();
-                                    }}                                  
-                                >+</button>
+                                    }}
+                                >
+                                    +
+                                </button>
                             </div>
                             <div className={styles.inputContainer}>
                                 <div
@@ -298,12 +316,13 @@ function CircleUpload({ runwayIndex }) {
                                 ></div>
 
                                 <input
-                                    className={styles.positionInput}
+                                    className="flex-1 p-1 border border-gray-300 w-12"
                                     type="number"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
                                     onBlur={handlePositionInputBlur}
                                     autoFocus
+                                    min={0}
                                 />
 
                                 <div
@@ -313,25 +332,26 @@ function CircleUpload({ runwayIndex }) {
                             </div>
                         </div>
                     )}
-                    <div className={styles.positon}>{formatnumb(currentX)}</div>
-                </div>
-            </motion.div>
+                    <div className="flex w-12 h-6 bg-white dark:bg-slate-600 align-middle items-center justify-center relative cursor-grab active:cursor-grabbing">
+                        {formatnumb(currentX)}
+                    </div>
+                </motion.div>
   
             {showCrop && (
-                <div className={styles.modalContainer}>
-                    <div className={styles.cropContainer}>
+                <div className="top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-black bg-opacity-50 w-4/5 h-4/5 flex justify-center items-center fixed">                    
+                    <div className="w-72 h-72 relative overflow-hidden pb-10 z-20">
                         <Cropper
                             image={tempImage}
                             crop={crop}
                             zoom={zoom}
-                            aspect={1}
+                            aspect={uploadTarget === 'head' ? 1 : 2}
                             onCropChange={setCrop}
                             onZoomChange={setZoom}
                             onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedArea(croppedAreaPixels)}
                         />
                     </div>
-                    <button className="cropButton" onClick={handleConfirmCrop}>Confirm Crop</button>
-                    <button className="cancleCropButton" onClick={() => { setShowCrop(false); setShowMenu(false) }}>Cancle Crop</button>
+                    <button className="relative z-20 bg-green-500 text-white py-1 px-3 rounded mt-2" onClick={handleConfirmCrop}>Confirm Crop</button>
+                    <button className="relative z-20 bg-red-500 text-white py-1 px-3 rounded mt-2 ml-2" onClick={() => { setShowCrop(false); setShowMenu(false) }}>Cancle Crop</button>
                 </div>
                 
             )}

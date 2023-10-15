@@ -14,8 +14,8 @@
 
         //Overall length setting
         const [overallDistance, setOverallDistance] = useState(100);  // Default length
-        const screenPixels = (0.8 * window.innerWidth) - 50;
-        const startLineX = (0.1 * window.innerWidth);
+        const screenPixels = (0.8 * window.innerWidth)-48;
+        const startLineX = (0.1 * window.innerWidth)+24;
         const unitPixelValue = screenPixels / (overallDistance);
         const reoverallDistance = () => {
             setOverallDistance(100);  // Reset to default
@@ -34,18 +34,14 @@
         const [showCalculatedTimes, setShowCalculatedTimes] = useState([false]);
         const [showCalculatedSpeeds, setShowCalculatedSpeeds] = useState([false]);
 
-        const [activeMetrics, setActiveMetrics] = useState(Array(runwayIDs.length).fill('distance'));  // default all to distance
+        const [calculateSelect, setCalculateSelect] = useState(["speed"]);
 
+        
 
         // User-defined values
         const [userDefinedDistances, setUserDefinedDistances] = useState([overallDistance]);// Default is overallDistance
-        const [userDefinedTimes, setUserDefinedTimes] = useState([0]);
+        const [userDefinedTimes, setUserDefinedTimes] = useState([1]);
         const [userDefinedSpeeds, setUserDefinedSpeeds] = useState([0]);
-
-        const [ifUserDefinedDistances, setIfUserDefinedDistances] = useState([false]);
-        const [ifUserDefinedTimes, setIfUserDefinedTimes] = useState([false]);
-        const [ifUserDefinedSpeeds, setIfUserDefinedSpeeds] = useState([false]);
-
 
         //Manage array changes corresponding to runway increases and decreases
         const addRunway = () => {
@@ -55,8 +51,9 @@
             // Add the new ID (lastID + 1) to runwayIDs.
             setRunwayIDs([...runwayIDs, lastID + 1]);
             setUserDefinedSpeeds([...userDefinedSpeeds, 0]);
-            setUserDefinedTimes([...userDefinedTimes, 0]);
+            setUserDefinedTimes([...userDefinedTimes, 1]);
             setUserDefinedDistances([...userDefinedDistances, overallDistance]);
+            setCalculateSelect([...calculateSelect, "speed"]);
         };
 
         const removeRunway = (runwayIndex) => {
@@ -78,13 +75,13 @@
             setUserDefinedSpeeds(userDefinedSpeeds.slice(0, -1));
             setUserDefinedTimes(userDefinedTimes.slice(0, -1));
             setUserDefinedDistances(userDefinedDistances.slice(0, -1));
+            setCalculateSelect(calculateSelect.slice(0, -1))
         };
 
 
         //Keep decimals tool
         function formatnumb(data) {
             const absoluteData = Math.abs(data);
-
             // Check if absolute data is between 0 and 1
             if (0 < absoluteData && absoluteData < 1) {
                 return parseFloat(data.toPrecision(2)).toString();
@@ -93,37 +90,130 @@
             }
         }
 
+        const [shouldRecalculate, setShouldRecalculate] = useState(false);
+        const [lastUpdatedIndex, setLastUpdatedIndex] = useState(null);
+
+        const calculateAndUpdate = (index) => {            
+            switch (calculateSelect[index]) {
+                case "speed":
+                    const calculatedSpeed = userDefinedDistances[index] / userDefinedTimes[index];
+                    let newSpeeds = [...calculatedSpeeds];
+                    newSpeeds[index] = calculatedSpeed;
+                    setCalculatedSpeeds(newSpeeds);
+    
+                    let newShowSpeeds = [...showCalculatedSpeeds];
+                    newShowSpeeds[index] = true;
+                    setShowCalculatedSpeeds(newShowSpeeds);
+    
+                    let newDistances = [...calculatedDistances];
+                    newDistances[index] = userDefinedDistances[index];
+                    setCalculatedDistances(newDistances);
+
+                    let newTimes = [...calculatedTimes];
+                    newTimes[index] = userDefinedTimes[index];
+                    setCalculatedTimes(newTimes);
+                    
+                    break;
+    
+                case "time":
+                    const calculatedTime = userDefinedDistances[index] / userDefinedSpeeds[index];
+                    let newTimes2 = [...calculatedTimes];
+                    newTimes2[index] = calculatedTime;
+                    setCalculatedTimes(newTimes2);
+    
+                    let newShowTimes = [...showCalculatedTimes];
+                    newShowTimes[index] = true;
+                    setShowCalculatedTimes(newShowTimes);
+    
+                    let newDistances2 = [...calculatedDistances];
+                    newDistances2[index] = userDefinedDistances[index];
+                    setCalculatedDistances(newDistances2);
+    
+                    let newSpeeds2 = [...calculatedSpeeds];
+                    newSpeeds2[index] = userDefinedSpeeds[index];
+                    setCalculatedSpeeds(newSpeeds2);
+                    break;
+    
+                case "distance":
+                    const calculatedDistance = userDefinedSpeeds[index] * userDefinedTimes[index];
+                    let newDistances3 = [...calculatedDistances];
+                    newDistances3[index] = calculatedDistance;
+                    setCalculatedDistances(newDistances3);
+    
+                    let newShowDistances = [...showCalculatedDistances];
+                    newShowDistances[index] = true;
+                    setShowCalculatedDistances(newShowDistances);
+    
+                    let newTimes3 = [...calculatedTimes];
+                    newTimes3[index] = userDefinedTimes[index];
+                    setCalculatedTimes(newTimes3);
+    
+                    let newSpeeds3 = [...calculatedSpeeds];
+                    newSpeeds3[index] = userDefinedSpeeds[index];
+                    setCalculatedSpeeds(newSpeeds3);
+                    break;
+    
+                default:
+                    break;
+            }
+        };
+
+        const setSelectOption = (index, option) => {
+            setCalculateSelect(prevState => {
+                const newData = [...prevState];
+                newData[index] = option;
+                return newData;
+            });
+            setLastUpdatedIndex(index);
+            setShouldRecalculate(true);        
+        };
+
         //Settings that control user-defined data
         const handleUserDefinedDistanceChange = (value, index) => {
             const updatedUserDefinedDistances = [...userDefinedDistances];
             updatedUserDefinedDistances[index] = value;
             setUserDefinedDistances(updatedUserDefinedDistances);
-
-            let newIfDistances = [...ifUserDefinedDistances];
-            newIfDistances[index] = true;
-            setIfUserDefinedDistances(newIfDistances);
+        
+            if (calculateSelect[index] === "distance") {
+                setSelectOption(index, "time");
+            } else {
+                setLastUpdatedIndex(index);
+                setShouldRecalculate(true);
+            }
         };
-
+        
         const handleUserDefinedTimeChange = (value, index) => {
             const updatedUserDefinedTimes = [...userDefinedTimes];
             updatedUserDefinedTimes[index] = value;
             setUserDefinedTimes(updatedUserDefinedTimes);
-
-            let newIfTimes = [...ifUserDefinedTimes];
-            newIfTimes[index] = true;
-            setIfUserDefinedTimes(newIfTimes);
+        
+            if (calculateSelect[index] === "time") {
+                setSelectOption(index, "speed");
+            } else {
+                setLastUpdatedIndex(index);
+                setShouldRecalculate(true);
+            }
         };
-
+        
         const handleUserDefinedSpeedChange = (value, index) => {
             const updatedUserDefinedSpeeds = [...userDefinedSpeeds];
             updatedUserDefinedSpeeds[index] = value;
             setUserDefinedSpeeds(updatedUserDefinedSpeeds);
-
-            let newIfSpeeds = [...ifUserDefinedSpeeds];
-            newIfSpeeds[index] = true;
-            setIfUserDefinedSpeeds(newIfSpeeds);
+        
+            if (calculateSelect[index] === "speed") {
+                setSelectOption(index, "distance");
+            } else {
+                setLastUpdatedIndex(index);
+                setShouldRecalculate(true);
+            }
         };
-
+        
+        useEffect(() => {
+            if (shouldRecalculate && lastUpdatedIndex !== null) {
+                calculateAndUpdate(lastUpdatedIndex);
+                setShouldRecalculate(false);
+            }
+        }, [shouldRecalculate, lastUpdatedIndex]);
 
         //function1 : Drag the circle and show the speed
         const [dragStartTimes, setDragStartTimes] = useState([]);
@@ -176,80 +266,7 @@
             });
         }
 
-        //Calculate speed time distance
-
-        useEffect(() => {
-                runwayIDs.forEach((id, index) => {
-                if (ifUserDefinedDistances[index] && ifUserDefinedTimes[index]) {
-                    const calculatedSpeed = userDefinedDistances[index] / userDefinedTimes[index];                
-                    let newSpeeds = [...calculatedSpeeds];
-                    newSpeeds[index] = formatnumb(calculatedSpeed);
-                    setCalculatedSpeeds(newSpeeds);
-
-                    let newShowSpeeds = [...showCalculatedSpeeds];
-                    newShowSpeeds[index] = true;
-                    setShowCalculatedSpeeds(newShowSpeeds);
-
-                    // Update the other two user-defined values to calculated arrays but don't show
-                    let newDistances = [...calculatedDistances];
-                    newDistances[index] = userDefinedDistances[index];
-                    setCalculatedDistances(newDistances);
-                    let newTimes = [...calculatedTimes];
-                    newTimes[index] = userDefinedTimes[index];
-                    setCalculatedTimes(newTimes);
-
-                    setIfUserDefinedDistances(prev => prev.map((val, idx) => idx === index ? false : val));
-                    setIfUserDefinedTimes(prev => prev.map((val, idx) => idx === index ? false : val));
-
-                } else if (ifUserDefinedDistances[index] && ifUserDefinedSpeeds[index]) {
-                    const calculatedTime = userDefinedDistances[index] / userDefinedSpeeds[index];
-
-                    let newTimes = [...calculatedTimes];
-                    newTimes[index] = formatnumb(calculatedTime);
-                    setCalculatedTimes(newTimes);
-
-                    let newShowTimes = [...showCalculatedTimes];
-                    newShowTimes[index] = true;
-                    setShowCalculatedTimes(newShowTimes);
-
-                    // Update the other two user-defined values to calculated arrays but don't show
-                    let newDistances = [...calculatedDistances];
-                    newDistances[index] = userDefinedDistances[index];
-                    setCalculatedDistances(newDistances);
-                    let newSpeeds = [...calculatedSpeeds];
-                    newSpeeds[index] = userDefinedSpeeds[index];
-                    setCalculatedSpeeds(newSpeeds);
-
-                    setIfUserDefinedDistances(prev => prev.map((val, idx) => idx === index ? false : val));
-                    setIfUserDefinedSpeeds(prev => prev.map((val, idx) => idx === index ? false : val));
-
-                } else if (ifUserDefinedTimes[index] && ifUserDefinedSpeeds[index]) {
-                    const calculatedDistance = userDefinedSpeeds[index] * userDefinedTimes[index];
-
-                    let newDistances = [...calculatedDistances];
-                    newDistances[index] = formatnumb(calculatedDistance);
-                    setCalculatedDistances(newDistances);
-
-                    let newShowDistances = [...showCalculatedDistances];
-                    newShowDistances[index] = true;
-                    setShowCalculatedDistances(newShowDistances);
-
-                    // Update the other two user-defined values to calculated arrays but don't show
-                    let newTimes = [...calculatedTimes];
-                    newTimes[index] = userDefinedTimes[index];
-                    setCalculatedTimes(newTimes);
-                    let newSpeeds = [...calculatedSpeeds];
-                    newSpeeds[index] = userDefinedSpeeds[index];
-                    setCalculatedSpeeds(newSpeeds);
-
-                    setIfUserDefinedTimes(prev => prev.map((val, idx) => idx === index ? false : val));
-                    setIfUserDefinedSpeeds(prev => prev.map((val, idx) => idx === index ? false : val));
-                }
-            });
-
-
-        }, [userDefinedDistances, userDefinedTimes, userDefinedSpeeds]);
-
+        //Calculate speed time distance        
 
         const handleTimeSet = (time) => {
             const newTimesArray = new Array(calculatedSpeeds.length).fill(parseFloat(time)); // Create an array filled with the new time for all runways
@@ -263,11 +280,7 @@
 
         const handleStartingGunClick = () => {
             setIsGunFired(true);
-            console.log("click");
-
         }
-
-   
 
 
         //Recognition commands for long press and click
@@ -340,7 +353,7 @@
                 calculatedDistances, showCalculatedDistances, setShowCalculatedDistances,
                 calculatedTimes, showCalculatedTimes, setShowCalculatedTimes,
                 calculatedSpeeds, showCalculatedSpeeds, setShowCalculatedSpeeds,
-                activeMetrics, setActiveMetrics,
+                calculateSelect, setCalculateSelect,setSelectOption,
 
                 // Misc
                 unitPixelValue, startLineX,

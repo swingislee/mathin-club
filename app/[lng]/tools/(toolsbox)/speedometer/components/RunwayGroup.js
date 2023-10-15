@@ -5,7 +5,7 @@
     import styles from './RunwayGroup.module.css';
     import { useSpeedData } from './SpeedDataContext.js';
 
-    function RunwayGroup({ runwayIndex, gridRow }) {
+    function RunwayGroup({runwayIndex}) {
         const {
             useLongPress,
             overallDistance, runwayIDs,
@@ -14,12 +14,11 @@
             calculatedTimes, showCalculatedTimes, setShowCalculatedTimes,
             calculatedSpeeds, showCalculatedSpeeds, setShowCalculatedSpeeds,
 
-            activeMetrics, setActiveMetrics,
+            calculateSelect, setCalculateSelect,setSelectOption,
         
             userDefinedDistances, handleUserDefinedDistanceChange,
             userDefinedTimes, handleUserDefinedTimeChange,
-            userDefinedSpeeds, handleUserDefinedSpeedChange,         
-        
+            userDefinedSpeeds, handleUserDefinedSpeedChange,
         } = useSpeedData();
 
         const [editingTravelDistance, setEditingTravelDistance] = useState(false);  // For toggling input box for length   
@@ -61,12 +60,11 @@
                                 setEditingTravelDistance(false);
                             }}
                             autoFocus
-                            className={styles.userDefinedInput}
+                            className="w-12"
                         />
                     ) : (
                         <button
                             {...longPressHandlers}
-                            className={styles.lengthLabelButton}
                         >
                             {`${displayValue}m`}
                         </button>
@@ -110,12 +108,11 @@
                                 setEditingTravelTime(false);
                             }}
                             autoFocus
-                            className={styles.userDefinedInput}
+                            className="w-12"
                         />
                     ) : (
                         <button
                             {...longPressHandlers}
-                            className={styles.lengthLabelButton}
                         >
                             {`${displayValue}s`}
                         </button>
@@ -160,62 +157,48 @@
                                 setEditingTravelSpeed(false);
                             }}
                             autoFocus
-                            className={styles.userDefinedInput}
+                            className="w-12"                        
                         />
                         ) : (
                         <button
                                 {...longPressHandlers}
-                                className={styles.lengthLabelButton}
                             >
                                 {`${displayValue}m/s`}
                             </button>
-                        )
-                    }
+                        )}
                 </div>            
             )
 
         };
-
-
-        const ActiveMetricCircles = () => {
-            return (
-                <div>
-                    {['distance', 'time', 'speed'].map(metric => (
-                        <span
-                            key={metric}
-                            onClick={() => {
-                                const updatedMetrics = [...activeMetrics];
-                                updatedMetrics[runwayIndex] = metric;
-                                setActiveMetrics(updatedMetrics);
-                            }}
-                            style={{
-                                display: 'inline-block',
-                                width: '20px',
-                                height: '20px',
-                                borderRadius: '50%',
-                                backgroundColor: activeMetrics[runwayIndex] === metric ? 'green' : 'grey',
-                                margin: '5px'
-                            }}
-                        ></span>
-                    ))}
-                </div>
-            );
-        };
-
-       
-
+        
         return (
-            <div className={styles.runwayGroup} style={{ gridRow: gridRow }}>
-                <div className={styles.dashboardContainer}>
-                    {DisplayTravelDistance()}
-                    {DisplayTravelTime()}
-                    {DisplayTravellSpeed()}
+            <div className="bg-green-200 w-full h-24 my-2">
+                <div className="absolute left-0 right-[90%] h-24 bg-cyan-500 p-2">
+                    <div className="flex items-center h-full space-x-2">
+                        <div className="flex flex-col justify-between h-full space-y-2 ">
+                            <div
+                                className={`w-4 h-4 border-2 rounded-full cursor-pointer ${calculateSelect[runwayIndex] === 'distance' ? 'bg-green-200' : 'bg-transparent'}`}
+                                onClick={() => setSelectOption(runwayIndex,'distance')}
+                            ></div>
+                            <div
+                                className={`w-4 h-4 border-2 rounded-full cursor-pointer ${calculateSelect[runwayIndex] === 'time' ? 'bg-green-200' : 'bg-transparent'}`}
+                                onClick={() => setSelectOption(runwayIndex,'time')}
+                            ></div>
+                            <div
+                                className={`w-4 h-4 border-2 rounded-full cursor-pointer ${calculateSelect[runwayIndex] === 'speed' ? 'bg-green-200' : 'bg-transparent'}`}
+                                onClick={() => setSelectOption(runwayIndex,'speed')}
+                            ></div>
+                        </div>
+                        <div className="flex flex-col justify-center  h-full space-y-2 ">
+                            {DisplayTravelDistance()}  {/* Assuming these functions render your input boxes */}
+                            {DisplayTravelTime()}
+                            {DisplayTravellSpeed()}
+                        </div>
+                    </div>
                 </div>
-            
+
 
                 <CircleUpload runwayIndex={runwayIndex} />
-            
-            
             </div>
         );
     }
