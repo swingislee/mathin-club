@@ -5,9 +5,12 @@ import { CogIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import ThemeSwitcher from './Day-to-night/ThemeSwitcher';
 import { Setlng } from './Setlanguage/client';
+import Link from 'next/link'
+import { useTranslation } from '@/app/i18n/client';
 
 export default function Setmenu({ lng } ) {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation(lng,'',"")
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -41,7 +44,8 @@ export default function Setmenu({ lng } ) {
               onClick={toggleDrawer}
             >
                 <ThemeSwitcher/>
-                
+                <li><Link href="../auth/signin">{t('signin')}</Link></li>
+                <li><Link href="../auth/signout">{t('signout')}</Link></li>
             </button>
             <Setlng lng={lng}/>
           </motion.div>

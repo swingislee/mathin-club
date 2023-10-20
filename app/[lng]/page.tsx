@@ -4,7 +4,7 @@ import Image from "next/image"
 import Setmenu from "./components/Setmenu"
 
 export default async function Page({ params: { lng } }) {
-  const { t } = await useTranslation(lng)
+  const { t } = await useTranslation(lng,'translation');
 
   return (
     <div>

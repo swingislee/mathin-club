@@ -3,7 +3,13 @@
   "tools": "Tools",
   "minds": "Minds",
   "story": "Story",
-  "home": "home",
   "games": "Games",
-  "terms": "Terms"
+  "terms": "Terms",
+  "signin": "Sign In",
+  "Rememberme": "Remember me",
+  "Forgotpassword": "Forgot your password?",
+  "signout": "Sign Out",
+  "Username": "Username",
+  "password": "Password",
+  "Signintitle": "Sign in to your account"
 }

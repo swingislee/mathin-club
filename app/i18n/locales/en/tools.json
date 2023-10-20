@@ -1,6 +1,5 @@
 {
-  "title": "Here is the magic toolbox",
-  "back": "Back to home",
+  "toolstitle": "Here is the magic toolbox",
   "speedometer": "Speedometer",
   "others": "add new tool"
 }

@@ -1,9 +1,15 @@
 {
-    "title": "数学笔记",
-    "tools": "工具",
-    "minds": "思维",
-    "story": "故事",
-    "home": "主星",
-    "games": "游戏",
-    "terms":"知识"
+  "title": "数学笔记",
+  "tools": "工具",
+  "minds": "思维",
+  "story": "故事",
+  "games": "游戏",
+  "terms": "知识",
+  "signin": "登录",
+  "Rememberme": "记住我",
+  "Forgotpassword": "忘记密码？",
+  "signout": "退出登录",
+  "Username": "用户名",
+  "password": "密码",
+  "Signintitle": "登录你的账户"
 }
