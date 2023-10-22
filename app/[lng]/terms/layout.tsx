@@ -2,6 +2,7 @@ import Navbar from "../components/Navbar"
 import Setmenu from "../components/Setmenu"
 import Link from "next/link"
 import Image from "next/image"
+import Control from "./Control"
 
 export default function gamesLayout({
     children,
@@ -17,6 +18,7 @@ export default function gamesLayout({
                 <Image src="/tohome.png" width={30} height={30} alt="back to home" className="w-6 h-6" />
             </Link>            
             <Setmenu lng={lng}/>
+            <Control lng/>
         </section>
     )
 }

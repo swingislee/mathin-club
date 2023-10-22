@@ -25,13 +25,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang={lng} dir={dir(lng)}>
-      <head/>
-        <Provider>
-          <body>
+        
+          <body><Provider>
             {children}
             <Footer/>
+            </Provider>
           </body>
-        </Provider>
+        
     </html>
   )
 }

@@ -7,7 +7,7 @@ type Props = {
     children: string | React.JSX.Element | React.JSX.Element[];
   }
 
-const Provider = ({children} : Props) => {
+ const Provider = ({children} : Props) => {
 
 const [mounted,setMounted] = useState<boolean>(false);
 

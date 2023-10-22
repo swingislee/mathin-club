@@ -1,17 +1,15 @@
 'use client'
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CogIcon } from '@heroicons/react/24/solid';
+import { FolderIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import ThemeSwitcher from './Day-to-night/ThemeSwitcher';
-import { Setlng } from './Setlanguage/client';
 import Link from 'next/link'
 import { useTranslation } from '@/app/i18n/client';
 import AddPoint from '../../terms/Control/Addpoint';
 
-export default function Setmenu({ lng } ) {
+export default function Control({ lng } ) {
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useTranslation(lng,'',"")
+
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -21,13 +19,13 @@ export default function Setmenu({ lng } ) {
   return (
     <div className="fixed top-0 h-screen w-full flex justify-end items-start p-4 overflow-hidden pointer-events-none">
       <button
-        className="fixed top-2 focus:outline-none z-50 pointer-events-auto"
+        className="fixed top-2 right-14 focus:outline-none z-50 pointer-events-auto"
         onClick={toggleDrawer}
       >
         {isOpen ? (
           <XMarkIcon className="h-8 w-8" />
         ) : (
-          <CogIcon className="h-8 w-8" />
+          <FolderIcon className="h-8 w-8" />
         )}
       </button>
 
@@ -40,15 +38,7 @@ export default function Setmenu({ lng } ) {
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             className="absolute top-0 right-0 h-full bg-white dark:bg-slate-600 shadow-lg p-4 pointer-events-auto"
           >
-            <button
-              className="mt-4 focus:outline-none"
-              onClick={toggleDrawer}
-            >
-                <ThemeSwitcher/>
-                <li><Link href="../auth/signin">{t('signin')}</Link></li>
-                <li><Link href="../auth/signout">{t('signout')}</Link></li>
-            </button>
-            <Setlng lng={lng}/>
+            <AddPoint lng/>
           </motion.div>
         )}
       </AnimatePresence>
