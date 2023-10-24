@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updatePoint, getPointById, deletePoint } from '../route';  // 确保路径正确
+import { updateLink, getLinkById, deleteLink } from '../route';  // 确保路径正确
 
 export async function GET(request: NextRequest) {
   const { nextUrl } = request;
@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'ID is required' }, { status: 400 });
   }
 
-  const point = await getPointById(id);
-  return NextResponse.json(point);
+  const link = await getLinkById(id);
+  return NextResponse.json(link);
 }
 
 export async function PUT(request: NextRequest) {
@@ -30,20 +30,19 @@ export async function PUT(request: NextRequest) {
     if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
-
-    const { title, description, main_line } = bodyData;
-    if (typeof title !== 'string' || typeof description !== 'string' || typeof main_line !== 'string') {
-      return NextResponse.json({ error: 'Invalid data in request body' }, { status: 400 });
+    console.log(bodyData)
+    const { upstream_id, downstream_id, weight } = bodyData;
+    if (typeof upstream_id !== 'number' || typeof downstream_id !== 'number' || typeof weight !== 'number') {
+      return NextResponse.json({ error: 'Invalid data in request body',}, { status: 400 });
     }
 
-    const updatedPoint = await updatePoint(id, bodyData);
-    return NextResponse.json(updatedPoint);
+    const updatedLink = await updateLink(id, bodyData);
+    return NextResponse.json(updatedLink);
 
-  } catch (error) {
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
-  }
+    } catch (error) {
+      return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    }
 }
-
 
 export async function DELETE(request: NextRequest) {
   const { nextUrl } = request;
@@ -54,6 +53,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'ID is required' }, { status: 400 });
   }
 
-  await deletePoint(id);
+  await deleteLink(id);
   return NextResponse.json({ success: true });
 }

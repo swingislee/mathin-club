@@ -18,7 +18,6 @@ export default function gamesLayout({
                 <Image src="/tohome.png" width={30} height={30} alt="back to home" className="w-6 h-6" />
             </Link>            
             <Setmenu lng={lng}/>
-            <Control lng/>
         </section>
     )
 }
