@@ -72,6 +72,12 @@ const Stars = () => {
         setRemInPixels(parseFloat(getComputedStyle(document.documentElement).fontSize))
     }, []);
 
+    useEffect(() => {
+        console.log("Downstream ID:", downstream_id);
+console.log("Matching option:", points.find(option => option.id === downstream_id));
+
+    }, [selectedLink]);
+
     const options = points.map(p => ({ value: p.id, label: p.title }));
 
     useEffect(() => {
@@ -431,18 +437,18 @@ const Stars = () => {
                         <div>
                             <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
                             <Select
-                                value={points.find(option => option.id === upstream_id)}
+                                value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
                                 options={points.map(point => ({ value: point.id, label: point.title }))}
-                                onChange={option => setUpstreamId(option.value)}
+                                onChange={option => option && setUpstreamId(option.value)}
                                 className="mt-1"
                             />
                         </div>
                         <div>
                             <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
                             <Select
-                                value={points.find(option => option.id === downstream_id)}
+                                value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
                                 options={points.map(point => ({ value: point.id, label: point.title }))}
-                                onChange={option => setDownstreamId(option.value)}
+                                onChange={option => option && setDownstreamId(option.value)}
                                 className="mt-1"
                             />
                         </div>
