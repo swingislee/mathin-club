@@ -26,7 +26,8 @@
         const svgRef = useRef(null);
         const [points, setPoints] = useState<Point[]>([]);
         const [links, setLinks] = useState<Link[]>([]);
-        const remInPixels = parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const [remInPixels, setRemInPixels] = useState<number>(16); 
+        const [isOpen, setIsOpen] = useState(false);
         
         const [title, setTitle] = useState('');
         const [description, setDescription] = useState('');
@@ -66,13 +67,12 @@
         
             
             setLinks(transformedLinks);
-            console.log(data)
-            console.log(transformedLinks)
         };
 
 
         useEffect(() => {
-            fetchAndUpdateGraph()
+            fetchAndUpdateGraph();
+            setRemInPixels(parseFloat(getComputedStyle(document.documentElement).fontSize))
         }, []);
 
 
@@ -80,9 +80,7 @@
             if (!points.length) return;
 
             const width = window.innerWidth;
-            const height = window.innerHeight;
-
-            
+            const height = window.innerHeight;            
             const svg = d3.select(svgRef.current)
                 .attr("width", width)
                 .attr("height", height);
@@ -95,9 +93,7 @@
                 .on("zoom", (event) => {
                     container.attr("transform", event.transform);
                 });
-
             svg.call(zoom as any);
-
 
             const simulation = d3.forceSimulation(points)
                 .force("link", d3.forceLink(links)
@@ -139,7 +135,6 @@
                     setWeight(d.weight);
                 });
         
-
             const node = container.selectAll(".node")
                 .data(points)
                 .enter().append("g");
@@ -186,9 +181,69 @@
                         });
                 
                     node.attr("transform", d => `translate(${d.x}, ${d.y})`);
-                });
-                
+                });                
         }, [points, links]);
+
+        const [upstreamPoints, setUpstreamPoints] = useState([{ id: '', weight: 1 }]);
+            const [titleError, setTitleError] = useState(false); // 新增state
+                
+            const toggleDrawer = () => {
+                setIsOpen(!isOpen);
+            };
+        
+            const handleAddUpstreamPoint = () => {
+                setUpstreamPoints([...upstreamPoints, { id: '', weight: 1 }]);
+            };
+        
+            const handleRemoveUpstreamPoint = () => {
+                if (upstreamPoints.length > 1) {
+                    const newPoints = [...upstreamPoints];
+                    newPoints.pop();
+                    setUpstreamPoints(newPoints);
+                }
+            };
+            
+            const handleUpstreamPointChange = (index, key, value) => {
+                const updatedPoints = [...upstreamPoints];
+                updatedPoints[index][key] = value;
+                setUpstreamPoints(updatedPoints);
+            };
+            
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!title) {
+                    setTitleError(true); // 显示错误
+                    return; // 不提交表单
+                } else {
+                    setTitleError(false); // 清除错误
+                }
+                const response = await fetch(`/terms/points/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, main_line }),
+                });
+                const data = await response.json();
+                if (data.id) {
+                    for (let point of upstreamPoints) {
+                        if (point.id) {
+                            await fetch('/terms/links/add', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    upstream_id: point.id, 
+                                    downstream_id: data.id,
+                                    weight: point.weight
+                                }),
+                            });
+                        }
+                    }
+                    setTitle('');
+                    setDescription('');
+                    setMainLine('');
+                    setUpstreamPoints([{ id: '', weight: 1 }]);
+                    await fetchAndUpdateGraph();
+                }
+            }
 
         useEffect(() => {
             if (selectedLink) {
@@ -242,135 +297,7 @@
             }
         };
 
-        const Control = () => {
-            const [isOpen, setIsOpen] = useState(false);
-            const [title, setTitle] = useState('');
-            const [description, setDescription] = useState('');
-            const [main_line, setMainLine] = useState('');
-            const [upstreamPoints, setUpstreamPoints] = useState([{ id: '', weight: 1 }]);
-                
-            const toggleDrawer = () => {
-                setIsOpen(!isOpen);
-            };
-        
-            const handleAddUpstreamPoint = () => {
-                setUpstreamPoints([...upstreamPoints, { id: '', weight: 1 }]);
-            };
-        
-            const handleRemoveUpstreamPoint = () => {
-                if (upstreamPoints.length > 1) {
-                    const newPoints = [...upstreamPoints];
-                    newPoints.pop();
-                    setUpstreamPoints(newPoints);
-                }
-            };
-            
-            const handleUpstreamPointChange = (index, key, value) => {
-                const updatedPoints = [...upstreamPoints];
-                updatedPoints[index][key] = value;
-                setUpstreamPoints(updatedPoints);
-            };
-            
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                const response = await fetch(`/terms/points/add`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, main_line }),
-                });
-                const data = await response.json();
-                if (data.id) {
-                    for (let point of upstreamPoints) {
-                        if (point.id) {
-                            await fetch('/terms/links/add', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ 
-                                    upstream_id: point.id, 
-                                    downstream_id: data.id,
-                                    weight: point.weight
-                                }),
-                            });
-                        }
-                    }
-                    setTitle('');
-                    setDescription('');
-                    setMainLine('');
-                    setUpstreamPoints([{ id: '', weight: 1 }]);
-                    await fetchAndUpdateGraph();
-                }
-            }
-            return (
-                <div className="fixed top-0 left-0 h-screen w-full flex z-50 justify-end items-start p-4 overflow-hidden pointer-events-none">
-                    <button
-                        className="fixed bottom-0 right-4 focus:outline-none z-50 pointer-events-auto"
-                        onClick={toggleDrawer}
-                    >
-                    {isOpen ? (
-                        <XMarkIcon className="h-8 w-8" />
-                    ) : (
-                        <FolderIcon className="h-8 w-8" />
-                    )}
-                    </button>
-        
-                    <AnimatePresence>
-                    {isOpen && (
-                        <motion.div
-                        initial={{ x: '100%' }}
-                        animate={{ x: '0' }}
-                        exit={{ x: '100%' }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className="absolute bottom-0 right-0 h-[95%] bg-white dark:bg-slate-600 shadow-lg p-4 pointer-events-auto"
-                        >
-                            <div>
-                                <h1 className="text-2xl mb-4">Add Point</h1>
-                                <form onSubmit={handleSubmit}>
-                                    <div className="mb-2">
-                                        <label className="block mb-1">标题:</label>
-                                        <input value={title} onChange={(e) => setTitle(e.target.value)} className="border rounded p-2 w-full" />
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="block mb-1">详细:</label>
-                                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="border rounded p-2 w-full h-32" />
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="block mb-1">主线:</label>
-                                        <input value={main_line} onChange={(e) => setMainLine(e.target.value)} className="border rounded p-2 w-full" />
-                                    </div>
-                                    {upstreamPoints.map((point, index) => (
-                                        <div key={index} className="mb-2 flex items-center">
-                                            <label className="block mb-1 mr-2">上游知识点:</label>
-                                            <select 
-                                                value={point.id} 
-                                                onChange={(e) => handleUpstreamPointChange(index, 'id', e.target.value)}
-                                                className="border rounded p-2 mr-2 flex-grow"
-                                            >
-                                                <option value=''>选择</option>
-                                                {points.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
-                                            </select>
-                                            <label className="block mb-1 mr-2">权重:</label>
-                                            <input 
-                                                type="number" 
-                                                value={point.weight} 
-                                                onChange={(e) => handleUpstreamPointChange(index, 'weight', Number(e.target.value))} 
-                                                min="1"
-                                                className="border rounded p-2 w-16"
-                                            />
-                                        </div>
-                                    ))}
-                                    <div className="mb-2">
-                                        <button type="button" onClick={handleAddUpstreamPoint} className="border rounded p-2 mr-2">+ 添加</button>
-                                        <button type="button" onClick={handleRemoveUpstreamPoint} className="border rounded p-2">- 删除</button>
-                                    </div>
-                                    <button type="submit" className="bg-amber-100 rounded p-2">Submit</button>
-                                </form>
-                            </div>
-                        </motion.div>
-                    )}
-                    </AnimatePresence>
-                </div>
-            );
-        }
+
 
         useEffect(() => {
             if (selectedNode) {
@@ -473,26 +400,34 @@
                         <h2 className="text-2xl mb-4 text-black dark:text-white">编辑链接</h2>
                         <div className="space-y-4">
                             <div>
-                                <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游 ID:</label>
-                                <input 
-                                    type="text" 
+                                <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
+                                <select 
                                     id="upstream_id" 
                                     name="upstream_id" 
-                                    value={upstream_id.toString()}
+                                    value={upstream_id}
                                     onChange={(e) => setUpstreamId(Number(e.target.value))}
                                     className="mt-1 px-4 py-2 w-full border rounded-md dark:bg-slate-700 dark:text-white"
-                                />
+                                >
+                                    <option value="">选择上游</option>
+                                    {points.map(point => (
+                                        <option key={point.id} value={point.id}>{point.title}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
-                                <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游 ID:</label>
-                                <input 
-                                    type="text" 
+                                <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
+                                <select 
                                     id="downstream_id" 
                                     name="downstream_id" 
-                                    value={downstream_id.toString()}
+                                    value={downstream_id}
                                     onChange={(e) => setDownstreamId(Number(e.target.value))}
                                     className="mt-1 px-4 py-2 w-full border rounded-md dark:bg-slate-700 dark:text-white"
-                                />
+                                >
+                                    <option value="">选择下游</option>
+                                    {points.map(point => (
+                                        <option key={point.id} value={point.id}>{point.title}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label htmlFor="weight" className="block text-sm font-medium text-black dark:text-white">权重:</label>
@@ -515,9 +450,78 @@
                     
                 )}
                 <svg ref={svgRef}></svg>
-                <div className='fixed'>
-                    <Control />
-                </div>   
+                <div className="fixed top-0 left-0 h-screen w-full  flex z-50 justify-end items-start p-4 overflow-hidden pointer-events-none">
+                    <button
+                        className="fixed top-2 right-14 focus:outline-none z-50 pointer-events-auto"
+                        onClick={toggleDrawer}
+                    >
+                    {isOpen ? (
+                        <XMarkIcon className="h-8 w-8" />
+                    ) : (
+                        <FolderIcon className="h-8 w-8" />
+                    )}
+                    </button>
+        
+                    <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                        initial={{ x: '100%' }}
+                        animate={{ x: '0' }}
+                        exit={{ x: '100%' }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        className="absolute bottom-0 right-0 h-full bg-white dark:bg-slate-600 shadow-lg p-4 pointer-events-auto"
+                        >
+                            <div>
+                                <h1 className="text-2xl mb-4">Add Point</h1>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-2">
+                                    <label className="block mb-1">标题:</label>
+                                    <input 
+                                        value={title} 
+                                        onChange={(e) => setTitle(e.target.value)} 
+                                        className={`border rounded p-2 w-full ${titleError ? 'border-red-500' : 'border-gray-300'}`} 
+                                    />
+                                    </div>
+                                    <div className="mb-2">
+                                        <label className="block mb-1">详细:</label>
+                                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="border rounded p-2 w-full h-32" />
+                                    </div>
+                                    <div className="mb-2">
+                                        <label className="block mb-1">主线:</label>
+                                        <input value={main_line} onChange={(e) => setMainLine(e.target.value)} className="border rounded p-2 w-full" />
+                                    </div>
+                                    {upstreamPoints.map((point, index) => (
+                                        <div key={index} className="mb-2 flex items-center">
+                                            <label className="block mb-1 mr-2">上游知识点:</label>
+                                            <select 
+                                                value={point.id} 
+                                                onChange={(e) => handleUpstreamPointChange(index, 'id', e.target.value)}
+                                                className="border rounded p-2 mr-2 flex-grow"
+                                            >
+                                                <option value=''>选择</option>
+                                                {points.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                                            </select>
+                                            <label className="block mb-1 mr-2">权重:</label>
+                                            <input 
+                                                type="number" 
+                                                value={point.weight} 
+                                                onChange={(e) => handleUpstreamPointChange(index, 'weight', Number(e.target.value))} 
+                                                min="1"
+                                                className="border rounded p-2 w-16"
+                                            />
+                                        </div>
+                                    ))}
+                                    <div className="mb-2">
+                                        <button type="button" onClick={handleAddUpstreamPoint} className="border rounded p-2 mr-2">+ 添加</button>
+                                        <button type="button" onClick={handleRemoveUpstreamPoint} className="border rounded p-2">- 删除</button>
+                                    </div>
+                                    <button type="submit" className="bg-amber-100 rounded p-2">Submit</button>
+                                </form>
+                            </div>
+                        </motion.div>
+                    )}
+                    </AnimatePresence>
+                </div>
                         
             </div>
         );
