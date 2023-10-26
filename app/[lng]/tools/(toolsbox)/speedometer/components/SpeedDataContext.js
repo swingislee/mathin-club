@@ -1,5 +1,6 @@
     //SpeedDataContext.js   Data source of character movement speed , time and distance
     'use client'
+    import 'client-only'
     import React, { createContext, useState, useContext, useEffect } from 'react';
 
     const SpeedDataContext = createContext();
@@ -14,9 +15,6 @@
 
         //Overall length setting
         const [overallDistance, setOverallDistance] = useState(100);  // Default length
-        const screenPixels = (0.8 * window.innerWidth)-48;
-        const startLineX = (0.1 * window.innerWidth)+24;
-        const unitPixelValue = screenPixels / (overallDistance);
         const reoverallDistance = () => {
             setOverallDistance(100);  // Reset to default
         };
@@ -356,7 +354,6 @@
                 calculateSelect, setCalculateSelect,setSelectOption,
 
                 // Misc
-                unitPixelValue, startLineX,
                 times, setTimes, handleTimeSet, isGunFired, setIsGunFired,
                 handleDragStart, handleDragStop, handleStartingGunClick,
                 useLongPress

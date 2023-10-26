@@ -10,7 +10,7 @@ import { Image } from 'next/dist/client/image-component';
 
 
 function CircleUpload({ runwayIndex }) {
-    const { handleDragStart, handleDragStop, unitPixelValue, useLongPress, calculatedTimes, calculatedDistances, isGunFired, setIsGunFired} = useSpeedData();
+    const { handleDragStart, handleDragStop, overallDistance, useLongPress, calculatedTimes, calculatedDistances, isGunFired, setIsGunFired} = useSpeedData();
     const [image, setImage] = useState(null);
     const [tempImage, setTempImage] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
@@ -32,6 +32,12 @@ function CircleUpload({ runwayIndex }) {
     const controls = useAnimation();
     const [inputValue, setInputValue] = useState("");
     const peopleRef = useRef(null);
+    const [unitPixelValue, setUnitPixelValue] = useState(null);
+
+    useEffect(() => {
+        const value = ((0.8 * window.innerWidth) - 48)/ (overallDistance);
+        setUnitPixelValue(value);
+    }, []);
 
 //保留两位小数的函数组件
     function formatnumb(data) {
