@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FolderIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import Select from 'react-select';
 
+
 const Stars = () => {
     interface Point {
         id: number;
@@ -78,6 +79,7 @@ const Stars = () => {
     const options = points.map(p => ({ value: p.id, label: p.title }));
 
     useEffect(() => {
+        console.log(upstreamPoints)
         if (!points.length) return;
 
         const width = window.innerWidth;
@@ -108,9 +110,9 @@ const Stars = () => {
             });
         svg.call(zoom as any);
 
-        const simulation = d3.forceSimulation(points)
-            .force("link", d3.forceLink(links)
-                .id(d => d.id)
+        const simulation = d3.forceSimulation<Point>(points)
+                .force("link", d3.forceLink<Point, Link>(links)
+                .id((d: Point) => d.id)
                 .distance(link => {
                     const sourceRadius = link.source.title.length * 0.4 * remInPixels;
                     const targetRadius = link.target.title.length * 0.4 * remInPixels;
@@ -119,7 +121,7 @@ const Stars = () => {
             )
             .force("charge", d3.forceManyBody().strength(-100))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("collide", d3.forceCollide().radius(d => d.title.length * 0.5 * remInPixels));
+            .force("collide", d3.forceCollide<Point>().radius(d => d.title.length * 0.5 * remInPixels));
         
         // 定义箭头的marker
         svg.append("defs").selectAll("marker")
@@ -199,7 +201,7 @@ const Stars = () => {
     }, [points, links,remInPixels]);
 
     //添加提示框部分
-    const [upstreamPoints, setUpstreamPoints] = useState([{ id: '', weight: 1 }]);
+    const [upstreamPoints, setUpstreamPoints] = useState([{ id: 0, weight: 1 }]);
     const [titleError, setTitleError] = useState(false); // 新增state
             
     const toggleDrawer = () => {
@@ -207,7 +209,7 @@ const Stars = () => {
     };
 
     const handleAddUpstreamPoint = () => {
-        setUpstreamPoints([...upstreamPoints, { id: '', weight: 1 }]);
+        setUpstreamPoints([...upstreamPoints, { id: 0, weight: 1 }]);
     };
     const handleRemoveUpstreamPoint = () => {
         if (upstreamPoints.length > 1) {
@@ -254,7 +256,8 @@ const Stars = () => {
             setTitle('');
             setDescription('');
             setMainLine('');
-            setUpstreamPoints([{ id: '', weight: 1 }]);
+            setUpstreamPoints([{ id: 0, weight: 1 }]);
+            
             await fetchAndUpdateGraph();
         }
     }
@@ -534,10 +537,15 @@ const Stars = () => {
                                         <label className="block mb-1 mr-2">上游知识点:</label>
                                         <Select
                                             options={options}
-                                            value={options.find(option => option.value === point.id)}
-                                            onChange={(selectedOption) => handleUpstreamPointChange(index, 'id', selectedOption.value)}
-                                            className="border rounded p-2 mr-2 flex-grow"
+                                            value={{ value: upstreamPoints[index].id,label: points.find(option => option.id === upstreamPoints[index].id )?.title || "" }}
+                                            onChange={(selectedOption) => {
+                                                if (selectedOption) {
+                                                    handleUpstreamPointChange(index, 'id', selectedOption.value);
+                                                }
+                                            }}
+                                            className=" rounded w-36 mr-2 flex-grow"
                                         />
+
                                         <label className="block mb-1 mr-2">权重:</label>
                                         <input 
                                             type="number" 
