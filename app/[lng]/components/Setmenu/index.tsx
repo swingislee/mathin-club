@@ -7,7 +7,7 @@ import ThemeSwitcher from './Day-to-night/ThemeSwitcher';
 import { Setlng } from './Setlanguage/client';
 import Link from 'next/link'
 import { Translate } from '@/app/i18n/client';
-import AddPoint from '../../terms/Control/Addpoint';
+
 
 
 export default function Setmenu({ lng } ) {

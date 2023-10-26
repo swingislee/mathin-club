@@ -196,7 +196,7 @@ const Stars = () => {
         
             node.attr("transform", d => `translate(${d.x}, ${d.y})`);
         });                
-    }, [points, links]);
+    }, [points, links,remInPixels]);
 
     //添加提示框部分
     const [upstreamPoints, setUpstreamPoints] = useState([{ id: '', weight: 1 }]);
