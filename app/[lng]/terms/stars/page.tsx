@@ -67,10 +67,12 @@ const Stars = () => {
         }));
         setLinks(transformedLinks);
     };
-
+    const setInitialRemInPixels = async () => {
+        setRemInPixels(parseFloat(getComputedStyle(document.documentElement).fontSize));
+    };
     useEffect(() => {
         fetchAndUpdateGraph();
-        setRemInPixels(parseFloat(getComputedStyle(document.documentElement).fontSize))
+        setInitialRemInPixels();
     }, []);
 
     const options = points.map(p => ({ value: p.id, label: p.title }));

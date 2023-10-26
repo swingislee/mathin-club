@@ -2,7 +2,6 @@ import Navbar from "../components/Navbar"
 import Setmenu from "../components/Setmenu"
 import Link from "next/link"
 import Image from "next/image"
-import Control from "./Control"
 
 export default function gamesLayout({
     children,

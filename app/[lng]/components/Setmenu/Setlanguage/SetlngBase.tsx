@@ -5,9 +5,10 @@ import { languages } from '@/app/i18n/settings'
 export const SetlngBase = ({ t, lng }) => {
   return (
     <div>
-      <Trans i18nKey="languageSwitcher" t={t}>
-        Switch from <strong>{{lng}}</strong> to:{' '}
+      <Trans i18nKey="languageSwitcher" t={t} values={{ lng }}>
+        Switch from <strong>{lng}</strong> to:{' '}
       </Trans>
+
       {languages.filter((l) => lng !== l).map((l, index) => {
         return (
           <span key={l}>
