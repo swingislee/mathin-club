@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { signIn } from "next-auth/react";
-import { useTranslation } from '@/app/i18n/client';
+import { Translate } from '@/app/i18n/client';
 
 export default function EnhancedLoginPage({ params: { lng } }) {
-  const { t } = useTranslation(lng, '',"")
+  const { t } = Translate(lng, '',"")
   const [error, setError] = useState<string | null>(null);
 
 

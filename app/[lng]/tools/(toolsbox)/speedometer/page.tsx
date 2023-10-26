@@ -1,3 +1,4 @@
+'use client'
 import MainContainer from './components/MainContainer';
 import {SpeedDataProvider} from './components/SpeedDataContext';
 

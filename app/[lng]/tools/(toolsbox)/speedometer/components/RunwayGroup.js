@@ -2,7 +2,6 @@
     'use client'
     import React, { useState } from 'react';
     import CircleUpload from './CircleUpload';
-    import styles from './RunwayGroup.module.css';
     import { useSpeedData } from './SpeedDataContext.js';
 
     function RunwayGroup({runwayIndex}) {
@@ -50,7 +49,7 @@
             );
 
             return (
-                <div className={styles.userDefinedLabel}>
+                <div>
                     {editingTravelDistance ? (
                         <input
                             type="number"
@@ -98,7 +97,7 @@
             );
 
             return (
-                <div className={styles.userDefinedLabel}>
+                <div>
                     {editingTravelTime ? (
                         <input
                             type="number"
@@ -144,10 +143,10 @@
                     handleUserDefinedSpeedChange(0, runwayIndex);
                     showspeed()
                 }  // Long press function                
-            );
+            ); 
       
             return (
-                <div  className={styles.userDefinedLabel}>
+                <div>
                     {editingTravelSpeed ? (
                         <input
                             type="number"

@@ -1,10 +1,10 @@
 import Link from 'next/link'
-import { useTranslation } from '../../i18n'
+import { Translate } from '../../i18n'
 import AddPoint from './Control/Addpoint';
 import Graph from './Control/Graph';
 
 export default async function Page({ params: { lng } }) {
-  const { t } = await useTranslation(lng, 'terms');
+  const { t } = await Translate(lng, 'terms');
 
   return (
     <div className="absolute w-screen top-12 bottom-0">

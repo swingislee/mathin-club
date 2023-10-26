@@ -33,6 +33,7 @@ const Stars = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [main_line, setMainLine] = useState('');
+    const [selectedValue, setSelectedValue] = useState(null);  // 初始值为null
 
     const [upstream_id,setUpstreamId]= useState(0);
     const [downstream_id, setDownstreamId] = useState(0);
@@ -71,12 +72,6 @@ const Stars = () => {
         fetchAndUpdateGraph();
         setRemInPixels(parseFloat(getComputedStyle(document.documentElement).fontSize))
     }, []);
-
-    useEffect(() => {
-        console.log("Downstream ID:", downstream_id);
-console.log("Matching option:", points.find(option => option.id === downstream_id));
-
-    }, [selectedLink]);
 
     const options = points.map(p => ({ value: p.id, label: p.title }));
 
@@ -117,11 +112,12 @@ console.log("Matching option:", points.find(option => option.id === downstream_i
                 .distance(link => {
                     const sourceRadius = link.source.title.length * 0.4 * remInPixels;
                     const targetRadius = link.target.title.length * 0.4 * remInPixels;
-                    return (sourceRadius + targetRadius)*1.5 ;
+                    return (sourceRadius + targetRadius)*link.weight ;
                 })
             )
-            .force("charge", d3.forceManyBody().strength(-300))
-            .force("center", d3.forceCenter(width / 2, height / 2));
+            .force("charge", d3.forceManyBody().strength(-100))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collide", d3.forceCollide().radius(d => d.title.length * 0.5 * remInPixels));
         
         // 定义箭头的marker
         svg.append("defs").selectAll("marker")
@@ -437,7 +433,7 @@ console.log("Matching option:", points.find(option => option.id === downstream_i
                         <div>
                             <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
                             <Select
-                                value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
+                                value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
                                 options={points.map(point => ({ value: point.id, label: point.title }))}
                                 onChange={option => option && setUpstreamId(option.value)}
                                 className="mt-1"
@@ -446,7 +442,7 @@ console.log("Matching option:", points.find(option => option.id === downstream_i
                         <div>
                             <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
                             <Select
-                                value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
+                                value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
                                 options={points.map(point => ({ value: point.id, label: point.title }))}
                                 onChange={option => option && setDownstreamId(option.value)}
                                 className="mt-1"

@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { useTranslation } from '../../i18n'
+import { Translate } from '../../i18n'
 import Navbar from "../components/Navbar"
 
 export default async function Page({ params: { lng } }) {
-  const { t } = await useTranslation(lng, 'tools')
+  const { t } = await Translate(lng, 'tools')
   const toolsbox = [
     { path: `/${lng}/tools/speedometer`, title: t('speedometer'), thumbnail: '/tools/speedometer.png' },
     { path: `/${lng}/tools/others`, title: t('others'), thumbnail: '/tools/others.png' },

@@ -1,10 +1,10 @@
 import Navbar from "./components/Navbar"
-import { useTranslation } from '../i18n'
+import { Translate } from '../i18n'
 import Image from "next/image"
 import Setmenu from "./components/Setmenu"
 
 export default async function Page({ params: { lng } }) {
-  const { t } = await useTranslation(lng,'translation');
+  const { t } = await Translate(lng,'translation');
 
   return (
     <div>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FolderIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link'
-import { useTranslation } from '@/app/i18n/client';
+import { Translate } from '@/app/i18n/client';
 import AddPoint from '../../terms/Control/Addpoint';
 
 export default function Control({ lng } ) {

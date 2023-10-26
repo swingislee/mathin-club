@@ -1,4 +1,4 @@
-
+'use client'
 import Setmenu from "../components/Setmenu"
 import Link from "next/link"
 import Image from "next/image"

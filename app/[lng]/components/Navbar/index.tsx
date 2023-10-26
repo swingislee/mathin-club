@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { useTranslation } from '@/app/i18n'
+import { Translate } from '@/app/i18n'
 
 export default async function Navbar({ lng ,page}) {
-  const { t } = await useTranslation(lng,"translation")
+  const { t } = await Translate(lng,"translation")
     
     let conbase: any, fontbase: any, linkbase: any;
     if (page === 'home') {
