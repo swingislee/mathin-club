@@ -9,25 +9,6 @@ import { motion, useAnimation, useMotionValue } from 'framer-motion';
 import { Image } from 'next/dist/client/image-component';
 
 
-const spinIn = {
-    hidden: { opacity: 0, scale: 0.8, rotate: 0 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      rotate: 360,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut"
-      }
-    }
-  };
-  
-  const menuVariants = {
-    open: { opacity: 1, transition: { duration: 0.5 } },
-    closed: { opacity: 0, transition: { duration: 0.5 } }
-  };
-  
-
 function CircleUpload({ runwayIndex }) {
     const { handleDragStart, handleDragStop, unitPixelValue, useLongPress, calculatedTimes, calculatedDistances, isGunFired, setIsGunFired} = useSpeedData();
     const [image, setImage] = useState(null);

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
 
   // 检查 title 是否为空或未定义
   if (!title) {
-      return Response.json({ error: "Title must be provided and non-empty." }, 400);
+      return Response.json({ error: "Title must be provided and non-empty." }, { status: 400 });
   }
 
   const result = await pool.query('INSERT INTO terms.point(title, description, main_line) VALUES($1, $2, $3) RETURNING id', [title, description, main_line]);

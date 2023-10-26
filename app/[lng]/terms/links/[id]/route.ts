@@ -30,7 +30,6 @@ export async function PUT(request: NextRequest) {
     if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
-    console.log(bodyData)
     const { upstream_id, downstream_id, weight } = bodyData;
     if (typeof upstream_id !== 'number' || typeof downstream_id !== 'number' || typeof weight !== 'number') {
       return NextResponse.json({ error: 'Invalid data in request body',}, { status: 400 });
@@ -40,7 +39,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(updatedLink);
 
     } catch (error) {
-      return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+      return NextResponse.json({ status: 500 });
     }
 }
 
