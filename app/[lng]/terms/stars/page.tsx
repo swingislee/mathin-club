@@ -121,7 +121,7 @@ const Stars = () => {
             )
             .force("charge", d3.forceManyBody().strength(-100))
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .force("collide", d3.forceCollide<Point>().radius(d => d.title.length * 0.5 * remInPixels));
+            .force("collide", d3.forceCollide<Point>().radius(d => d.title.length * 0.4 * remInPixels));
         
         // 定义箭头的marker
         svg.append("defs").selectAll("marker")

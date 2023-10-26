@@ -1,6 +1,5 @@
     //SpeedDataContext.js   Data source of character movement speed , time and distance
     'use client'
-    import 'client-only'
     import React, { createContext, useState, useContext, useEffect } from 'react';
 
     const SpeedDataContext = createContext();
@@ -8,8 +7,6 @@
     export const useSpeedData = () => {
         return useContext(SpeedDataContext);
     };
-
-
 
     export const SpeedDataProvider = ({ children }) => {
 

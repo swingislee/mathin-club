@@ -1,4 +1,6 @@
 'use client'
+import {SpeedDataProvider} from './components/SpeedDataContext';
+
 export default function speedometerpage({
     children,
     params: {
@@ -7,7 +9,9 @@ export default function speedometerpage({
     }) {
     return (
         <section>
+            <SpeedDataProvider>
             {children}
+            </SpeedDataProvider>
         </section>
     )
 }

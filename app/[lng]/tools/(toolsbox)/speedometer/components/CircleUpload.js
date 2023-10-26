@@ -11,7 +11,7 @@ import { Image } from 'next/dist/client/image-component';
 
 function CircleUpload({ runwayIndex }) {
     const { handleDragStart, handleDragStop, overallDistance, useLongPress, calculatedTimes, calculatedDistances, isGunFired, setIsGunFired} = useSpeedData();
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState("/tools/speedometer/head.png");
     const [tempImage, setTempImage] = useState(null);
     const [showMenu, setShowMenu] = useState(false);
     const [showCrop, setShowCrop] = useState(false);
@@ -21,7 +21,7 @@ function CircleUpload({ runwayIndex }) {
     const [croppedArea, setCroppedArea] = useState(null);
     const [dragStartX, setDragStartX] = useState(0); 
     const [inputId] = useState(`circleUploadInput-${Date.now()}-${Math.random()}`);
-    const [vehicleBackground, setVehicleBackground] = useState("/tools/speedometer/08-upload.png");
+    const [vehicleBackground, setVehicleBackground] = useState("/tools/speedometer/04-plane.png");
     const [uploadTarget, setUploadTarget] = useState(null);  // 'head' or 'vehicle'
     const [isFlipped, setIsFlipped] = useState(false);
     const [activeFlipped, setActiveFlipped] = useState(false);
@@ -83,7 +83,7 @@ function CircleUpload({ runwayIndex }) {
 
     const longPressHead = useLongPress(
         () => { setUploadTarget('head'); document.getElementById(inputId).click()},      // Short press function
-        () => { setImage(null); setShowCrop(false); setIsImageUploaded(false) }                // Long press function
+        () => { setImage("/tools/speedometer/head.png"); setShowCrop(false); setIsImageUploaded(false) }                // Long press function
     );
 
     const longPressVehicle = useLongPress(
@@ -203,8 +203,6 @@ function CircleUpload({ runwayIndex }) {
                             setIsFlipped(!activeFlipped);
                         }
                     }
-                    console.log(info.point.x,lastX)
-                    // Update the lastX for the next comparison
                     setLastX(info.point.x);
                 }}
                 onDragEnd={(event, info) => {
@@ -217,12 +215,10 @@ function CircleUpload({ runwayIndex }) {
                     <button
                         {...longPressHead}
                         className="w-12 h-12 rounded-full bg-white flex items-center justify-center bg-cover bg-center relative"
-                        style={{ backgroundImage: `url(${image})` }}
+                        style={{ backgroundImage: `url(${image})`,transform: isFlipped ? 'scaleX(-1)' : 'scaleX(1)' }}
                         onContextMenu={handleRightClick}
-                    >
-                        {!isImageUploaded && '+'}
+                    >                
                         <input
-                            id={inputId}
                             type="file"
                             style={{ display: 'none' }}
                             onChange={handleImageChange}
