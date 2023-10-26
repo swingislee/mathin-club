@@ -1,10 +1,10 @@
 'use client'
-import { Translate } from '@/app/i18n'
+import { Translate } from '@/app/i18n/client'
 import { motion } from 'framer-motion'
 
 
 export default  function Page({ params: { lng } }) {
-  const { t } = Translate(lng, 'tools')
+  const { t } = Translate(lng, 'tools','')
 
 
   return (
