@@ -32,7 +32,7 @@ jobs:
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_KEY }}
         script: |
-          cd /var/www/mathin.club
+          cd /var/www/mathin-club
           git pull origin main
           npm install
           npm run build
