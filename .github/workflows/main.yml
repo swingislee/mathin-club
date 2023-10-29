@@ -11,18 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout latest code
-      uses: actions/checkout@v2
+      # - name: Checkout latest code
+      #   uses: actions/checkout@v2
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18.13.0' # 你可以根据你的项目需要选择适当的Node.js版本
+      # - name: Setup Node.js environment
+      #   uses: actions/setup-node@v2
+      #   with:
+      #     node-version: '14'
 
-    - name: Install dependencies & build
-      run: |
-        npm install
-        npm run build
+      # - name: Install dependencies & build
+      #   run: |
+      #     npm install
+      #     npm run build
+
 
     # 以下部分将代码部署到你的服务器上
     - name: Deploy to server
