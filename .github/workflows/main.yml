@@ -1,0 +1,40 @@
+name: CI/CD for mathin.club
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to mathin.club
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout latest code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18.13.0' # 你可以根据你的项目需要选择适当的Node.js版本
+
+    - name: Install dependencies & build
+      run: |
+        npm install
+        npm run build
+
+    # 以下部分将代码部署到你的服务器上
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_KEY }}
+        script: |
+          cd /var/www/mathin.club
+          git pull origin main
+          npm install
+          npm run build
+          pm2 restart mathin-club
+          pm2 save
