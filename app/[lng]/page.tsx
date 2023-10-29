@@ -17,7 +17,7 @@ export default async function Page({ params: { lng } }) {
       </h1>      
       <Navbar lng={lng} page="home" />      
       <div className="absolute w-screen h-screen -z-20 overflow-hidden">
-        <Image
+        <img
         src={"/Main.png"} width={1000} height={1000} alt="Picture of the author"
         className="relative h-auto w-full sl:h-full sl:w-auto -z-20 scale-125
         left-1/2 top-[45%] sl:top-[57%]  -translate-x-1/2 -translate-y-1/2" 

@@ -20,7 +20,8 @@ function CircleUpload({ runwayIndex }) {
     const [isImageUploaded, setIsImageUploaded] = useState(false);
     const [croppedArea, setCroppedArea] = useState(null);
     const [dragStartX, setDragStartX] = useState(0); 
-    const [inputId] = useState(`circleUploadInput-${Date.now()}-${Math.random()}`);
+    const [inputHeadId] = useState(`HeadInput-${runwayIndex}`);
+    const [inputVehicleId] = useState(`VehicleInput-${runwayIndex}`);   
     const [vehicleBackground, setVehicleBackground] = useState("/tools/speedometer/04-plane.png");
     const [uploadTarget, setUploadTarget] = useState(null);  // 'head' or 'vehicle'
     const [isFlipped, setIsFlipped] = useState(false);
@@ -82,7 +83,7 @@ function CircleUpload({ runwayIndex }) {
     };
 
     const longPressHead = useLongPress(
-        () => { setUploadTarget('head'); document.getElementById(inputId).click()},      // Short press function
+        () => { setUploadTarget('head'); document.getElementById(inputHeadId).click()},      // Short press function
         () => { setImage("/tools/speedometer/head.png"); setShowCrop(false); setIsImageUploaded(false) }                // Long press function
     );
 
@@ -219,6 +220,7 @@ function CircleUpload({ runwayIndex }) {
                         onContextMenu={handleRightClick}
                     >                
                         <input
+                            id={inputHeadId}
                             type="file"
                             style={{ display: 'none' }}
                             onChange={handleImageChange}
@@ -229,7 +231,7 @@ function CircleUpload({ runwayIndex }) {
                         className='w-12 h-6 relative bg-white'
                         style={{transform: isFlipped ? 'scaleX(-1)' : 'scaleX(1)',
                         }}>
-                    <Image src={vehicleBackground} width={48} height={24} alt='walk'/>
+                    <img src={vehicleBackground} width={48} height={24} alt='walk'/>
                     </button>
                     {showMenu && (
                         <div className="absolute w-48 h-48 top-[-22px] left-[-75px] z-10">
@@ -237,58 +239,65 @@ function CircleUpload({ runwayIndex }) {
                                 <button
                                     className={`${styles.circleButton}`}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/01-walk.png")}
-                                ><Image src="/tools/speedometer/01-walk.png" width={48} height={24} alt='walk'/>
+                                >
+                                    <img src="/tools/speedometer/01-walk.png" width={48} height={24} alt='walk'/>
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/02-bicycle.png")}
                                 >
-                                    <Image src="/tools/speedometer/02-bicycle.png" width={48} height={24} alt='bicycle' />
+                                    <img src="/tools/speedometer/02-bicycle.png" width={48} height={24} alt='bicycle' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/03-car.png")}
                                 >
-                                    <Image src="/tools/speedometer/03-car.png" width={48} height={24} alt='car' />
+                                    <img src="/tools/speedometer/03-car.png" width={48} height={24} alt='car' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/04-plane.png")}
                                 >
-                                    <Image src="/tools/speedometer/04-plane.png" width={48} height={24} alt='plane' />
+                                    <img src="/tools/speedometer/04-plane.png" width={48} height={24} alt='plane' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/05-rocket.png")}
                                 >
-                                    <Image src="/tools/speedometer/05-rocket.png" width={48} height={24} alt='rocket' />
+                                    <img src="/tools/speedometer/05-rocket.png" width={48} height={24} alt='rocket' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/06-cloud.png")}
                                 >
-                                    <Image src="/tools/speedometer/06-cloud.png" width={48} height={24} alt='cloud' />
+                                    <img src="/tools/speedometer/06-cloud.png" width={48} height={24} alt='cloud' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => handleCircleButtonClick("/tools/speedometer/07-wormhole.png")}
                                 >
-                                    <Image src="/tools/speedometer/07-wormhole.png" width={48} height={24} alt='wormhole' />
+                                    <img src="/tools/speedometer/07-wormhole.png" width={48} height={24} alt='wormhole' />
                                 </button>
 
                                 <button
                                     className={styles.circleButton}
                                     onClick={() => {
                                         setUploadTarget('vehicle');
-                                        document.getElementById(inputId).click();
+                                        document.getElementById(inputVehicleId).click();
                                     }}
                                 >
+                                    <input
+                                        id={inputVehicleId}
+                                        type="file"
+                                        style={{ display: 'none' }}
+                                        onChange={handleImageChange}
+                                    />
                                     +
                                 </button>
                             </div>
