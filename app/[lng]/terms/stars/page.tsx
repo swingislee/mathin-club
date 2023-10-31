@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderIcon, XMarkIcon } from '@heroicons/react/24/solid';
+import { FolderIcon, XMarkIcon,MagnifyingGlassIcon,DocumentPlusIcon } from '@heroicons/react/24/solid';
 import Select from 'react-select';
 
 
@@ -25,7 +25,9 @@ const Stars = () => {
         target: Point;
     }
 
-    const svgRef = useRef(null);
+    const svgRef = useRef<SVGSVGElement | null>(null);
+    const zoomRef = useRef<d3.ZoomBehavior<Element, unknown> | null>(null);
+
     const [points, setPoints] = useState<Point[]>([]);
     const [links, setLinks] = useState<Link[]>([]);
     const [remInPixels, setRemInPixels] = useState<number>(16); 
@@ -52,6 +54,21 @@ const Stars = () => {
         downstream_id: 0,
         weight: 0
     });
+    const [showSearch, setShowSearch] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [matchedNodes, setMatchedNodes] = useState<Point[]>([]);
+
+    // 监听搜索项变化
+    useEffect(() => {
+        if (searchTerm) {
+            const matched = points.filter(p => p.title.includes(searchTerm));
+            setMatchedNodes(matched);
+        } else {
+            setMatchedNodes([]);
+        }
+    }, [searchTerm, points]);
+
+
     
     const fetchAndUpdateGraph = async () => {
         const data = await fetch('points').then(response => response.json());
@@ -109,6 +126,7 @@ const Stars = () => {
                 container.attr("transform", event.transform);
             });
         svg.call(zoom as any);
+        zoomRef.current = zoom; 
 
         const simulation = d3.forceSimulation<Point>(points)
                 .force("link", d3.forceLink<Point, Link>(links)
@@ -197,12 +215,41 @@ const Stars = () => {
             });
         
             node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+            points.forEach(p => {
+                p.x = p.x;
+                p.y = p.y;
+            });
         });                
     }, [points, links,remInPixels]);
 
     //添加提示框部分
     const [upstreamPoints, setUpstreamPoints] = useState([{ id: 0, weight: 1 }]);
     const [titleError, setTitleError] = useState(false); // 新增state
+
+    const centerAndHighlightNode = (node: Point) => {
+        const svgElement = svgRef.current;
+        if (!svgElement) return;
+    
+        const width = svgElement.clientWidth;
+        const height = svgElement.clientHeight;
+    
+        const centerX = width / 2;
+        const centerY = height / 2;
+    
+        const nodeX = node.x;
+        const nodeY = node.y;
+    
+        const scaleAmount = 2; // 缩放值
+        const translateX = centerX - (nodeX * scaleAmount);
+        const translateY = centerY - (nodeY * scaleAmount);
+    
+        const transform = d3.zoomIdentity.translate(translateX, translateY).scale(scaleAmount);
+    
+        d3.select(svgElement).transition().duration(750).call((zoomRef.current as any).transform, transform);
+    };
+    
+    
+    
             
     const toggleDrawer = () => {
         setIsOpen(!isOpen);
@@ -382,193 +429,235 @@ const Stars = () => {
         }
         }   
     };
-
+    const handleSearchIconClick = () => {
+        setShowSearch(prevState => !prevState);
+    };
+    
     
     return (
-        <div className='absolute flex justify-center items-center w-full h-full'>
-            {selectedNode && (
-                <div className="fixed top-14 w-1/2 bottom-10 bg-white shadow dark:bg-slate-600 p-4 rounded-lg overflow-y-auto">
-                    {/* Close button */}
-                    <button 
-                        className="absolute top-3 right-3 bg-gray-200 dark:bg-slate-400 p-2 rounded-full focus:outline-none"
-                        onClick={() => {setSelectedNode(null);setTitle('');setDescription('');setMainLine('');}}
-                    >
-                        <XMarkIcon className="h-6 w-6" />
-                    </button>
-                    
-                    {/* Point details */}
-                    <div className="flex flex-col space-y-4">
-                        <input 
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="bg-transparent border-b-2 focus:border-amber-500 p-2 text-xl"
-                            placeholder="Title"
-                        />
-                        <textarea 
-                            value={main_line}
-                            onChange={(e) => setMainLine(e.target.value)}
-                            className="bg-transparent border-2 focus:border-amber-500 p-2 rounded-md h-20"
-                            placeholder="Main Line"
-                        ></textarea>
-                        <textarea 
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="bg-transparent border-2 focus:border-amber-500 p-2 rounded-md h-40"
-                            placeholder="Description"
-                        ></textarea>
-                        <div className="flex space-x-4">
-                            <button onClick={handleEdit} className="bg-amber-100 text-white p-2 rounded-lg">修改</button>
-                            <button onClick={handleDelete} className="bg-red-400 text-white p-2 rounded-lg">删除</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {selectedLink && (
-                <div className="fixed inset-0 flex items-center justify-center z-50">
-                <div className="relative bg-white dark:bg-slate-500  rounded-lg shadow-lg p-4">
-                
-                    <button 
-                        className="absolute top-3 right-3 bg-gray-200 dark:bg-slate-400 p-2 rounded-full focus:outline-none"
-                        onClick={() => setSelectedLink(null)}
-                    >
-                        <XMarkIcon className="h-6 w-6" />
-                    </button>
-                    <h2 className="text-2xl mb-4 text-black dark:text-white">编辑链接</h2>
-                    <div className="space-y-4">
-                        <div>
-                            <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
-                            <Select
-                                value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
-                                options={points.map(point => ({ value: point.id, label: point.title }))}
-                                onChange={option => option && setUpstreamId(option.value)}
-                                className="mt-1"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
-                            <Select
-                                value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
-                                options={points.map(point => ({ value: point.id, label: point.title }))}
-                                onChange={option => option && setDownstreamId(option.value)}
-                                className="mt-1"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="weight" className="block text-sm font-medium text-black dark:text-white">权重:</label>
-                            <input 
-                                type="number" 
-                                id="weight" 
-                                name="weight" 
-                                value={weight.toString()}  // 转换为字符串
-                                onChange={(e) => setWeight(Number(e.target.value))}  // 转换为数字
-                                className="mt-1 px-4 py-2 w-full border rounded-md dark:bg-slate-700 dark:text-white"
-                            />
-                        </div>
-                        <div className="flex justify-end space-x-4 mt-4">
-                            <button onClick={handleAddLink} className="px-4 py-2 bg-amber-100 dark:bg-slate-500 border rounded-md hover:bg-amber-200 dark:hover:bg-slate-600">添加</button>
-                            <button onClick={handleEditLink} className="px-4 py-2 bg-amber-100 dark:bg-slate-500 border rounded-md hover:bg-amber-200 dark:hover:bg-slate-600">修改</button>
-                            <button onClick={handleDeleteLink} className="px-4 py-2 bg-red-400 border rounded-md hover:bg-red-500 text-white">删除</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                
-            )}
-            <svg ref={svgRef}></svg>
-            <div className="fixed top-0 left-0 h-screen w-full  flex z-50 justify-end items-start p-4 overflow-hidden pointer-events-none">
-                <button
-                    className="fixed top-2 right-14 focus:outline-none z-50 pointer-events-auto"
-                    onClick={toggleDrawer}
+    <div className='absolute flex justify-center items-center w-full h-full'>
+        {selectedNode && (
+            <div className="fixed top-14 w-1/2 bottom-10 bg-white shadow dark:bg-slate-600 p-4 rounded-lg overflow-y-auto">
+                {/* Close button */}
+                <button 
+                    className="absolute top-3 right-3 bg-gray-200 dark:bg-slate-400 p-2 rounded-full focus:outline-none"
+                    onClick={() => {setSelectedNode(null);setTitle('');setDescription('');setMainLine('');}}
                 >
-                {isOpen ? (
-                    <XMarkIcon className="h-8 w-8" />
-                ) : (
-                    <FolderIcon className="h-8 w-8" />
-                )}
+                    <XMarkIcon className="h-6 w-6" />
                 </button>
-    
-                <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                    initial={{ x: '100%' }}
-                    animate={{ x: '0' }}
-                    exit={{ x: '100%' }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    className="absolute bottom-0 right-0 h-full bg-white dark:bg-slate-600 shadow-lg p-4 pointer-events-auto"
-                    >
-                        <div>
-                            <h1 className="text-2xl mb-4">Add Point</h1>
-                            <form onSubmit={handleSubmit}>
-                                <div className="mb-2">
-                                <label className="block mb-1">标题:</label>
-                                <input 
-                                    value={title} 
-                                    onChange={(e) => setTitle(e.target.value)} 
-                                    className={`border rounded p-2 w-full ${titleError ? 'border-red-500' : 'border-gray-300'}`} 
-                                />
-                                </div>
-                                <div className="mb-2">
-                                    <label className="block mb-1">详细:</label>
-                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="border rounded p-2 w-full h-32" />
-                                </div>
-                                <div className="mb-2">
-                                    <label className="block mb-1">主线:</label>
-                                    <input 
-                                        list="mainlines" 
-                                        value={main_line} 
-                                        onChange={(e) => setMainLine(e.target.value)} 
-                                        className="border rounded p-2 w-full" 
-                                    />
-                                    <datalist id="mainlines">
-                                        <option value="数域拓展" />
-                                        <option value="数量关系" />
-                                        <option value="谜题游戏" />
-                                        <option value="空间观念" />
-                                        <option value="分析推理" />
-                                        <option value="应用意识" />
-                                        <option value="运算技能" />
-                                        <option value="代数关系" />
-                                        <option value="计算原理" />
-                                        <option value="特殊技巧" />
-                                    </datalist>
-                                </div>
-                                {upstreamPoints.map((point, index) => (
-                                    <div key={index} className="mb-2 flex items-center">
-                                        <label className="block mb-1 mr-2">上游知识点:</label>
-                                        <Select
-                                            options={options}
-                                            value={{ value: upstreamPoints[index].id,label: points.find(option => option.id === upstreamPoints[index].id )?.title || "" }}
-                                            onChange={(selectedOption) => {
-                                                if (selectedOption) {
-                                                    handleUpstreamPointChange(index, 'id', selectedOption.value);
-                                                }
-                                            }}
-                                            className=" rounded w-36 mr-2 flex-grow"
-                                        />
-
-                                        <label className="block mb-1 mr-2">权重:</label>
-                                        <input 
-                                            type="number" 
-                                            value={point.weight} 
-                                            onChange={(e) => handleUpstreamPointChange(index, 'weight', Number(e.target.value))} 
-                                            min="1"
-                                            className="border rounded p-2 w-16"
-                                        />
-                                    </div>
-                                ))}
-                                <div className="mb-2">
-                                    <button type="button" onClick={handleAddUpstreamPoint} className="border rounded p-2 mr-2">+ 添加</button>
-                                    <button type="button" onClick={handleRemoveUpstreamPoint} className="border rounded p-2">- 删除</button>
-                                </div>
-                                <button type="submit" className="bg-amber-100 rounded p-2">Submit</button>
-                            </form>
-                        </div>
-                    </motion.div>
-                )}
-                </AnimatePresence>
+                
+                {/* Point details */}
+                <div className="flex flex-col space-y-4">
+                    <input 
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="bg-transparent border-b-2 focus:border-amber-500 p-2 text-xl"
+                        placeholder="Title"
+                    />
+                    <textarea 
+                        value={main_line}
+                        onChange={(e) => setMainLine(e.target.value)}
+                        className="bg-transparent border-2 focus:border-amber-500 p-2 rounded-md h-20"
+                        placeholder="Main Line"
+                    ></textarea>
+                    <textarea 
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="bg-transparent border-2 focus:border-amber-500 p-2 rounded-md h-40"
+                        placeholder="Description"
+                    ></textarea>
+                    <div className="flex space-x-4">
+                        <button onClick={handleEdit} className="bg-amber-100 text-white p-2 rounded-lg">修改</button>
+                        <button onClick={handleDelete} className="bg-red-400 text-white p-2 rounded-lg">删除</button>
+                    </div>
+                </div>
             </div>
-                    
+        )}
+        {selectedLink && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="relative bg-white dark:bg-slate-500  rounded-lg shadow-lg p-4">
+            
+                <button 
+                    className="absolute top-3 right-3 bg-gray-200 dark:bg-slate-400 p-2 rounded-full focus:outline-none"
+                    onClick={() => setSelectedLink(null)}
+                >
+                    <XMarkIcon className="h-6 w-6" />
+                </button>
+                <h2 className="text-2xl mb-4 text-black dark:text-white">编辑链接</h2>
+                <div className="space-y-4">
+                    <div>
+                        <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
+                        <Select
+                            value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
+                            options={points.map(point => ({ value: point.id, label: point.title }))}
+                            onChange={option => option && setUpstreamId(option.value)}
+                            className="mt-1"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
+                        <Select
+                            value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
+                            options={points.map(point => ({ value: point.id, label: point.title }))}
+                            onChange={option => option && setDownstreamId(option.value)}
+                            className="mt-1"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="weight" className="block text-sm font-medium text-black dark:text-white">权重:</label>
+                        <input 
+                            type="number" 
+                            id="weight" 
+                            name="weight" 
+                            value={weight.toString()}  // 转换为字符串
+                            onChange={(e) => setWeight(Number(e.target.value))}  // 转换为数字
+                            className="mt-1 px-4 py-2 w-full border rounded-md dark:bg-slate-700 dark:text-white"
+                        />
+                    </div>
+                    <div className="flex justify-end space-x-4 mt-4">
+                        <button onClick={handleAddLink} className="px-4 py-2 bg-amber-100 dark:bg-slate-500 border rounded-md hover:bg-amber-200 dark:hover:bg-slate-600">添加</button>
+                        <button onClick={handleEditLink} className="px-4 py-2 bg-amber-100 dark:bg-slate-500 border rounded-md hover:bg-amber-200 dark:hover:bg-slate-600">修改</button>
+                        <button onClick={handleDeleteLink} className="px-4 py-2 bg-red-400 border rounded-md hover:bg-red-500 text-white">删除</button>
+                    </div>
+                </div>
+            </div>
         </div>
+            
+        )}
+        <svg ref={svgRef}></svg>
+        <div className="fixed top-0 left-0 h-screen w-full  flex z-50 justify-end items-start p-4 overflow-hidden pointer-events-none">
+            <button
+                className="fixed top-2 right-14 focus:outline-none z-50 pointer-events-auto"
+                onClick={toggleDrawer}
+            >
+            {isOpen ? (
+                <XMarkIcon className="h-8 w-8" />
+            ) : (
+                <DocumentPlusIcon className="h-8 w-8" />
+            )}
+            </button>
+
+            <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: '0' }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="absolute bottom-0 right-0 h-full bg-white dark:bg-slate-600 shadow-lg p-4 pointer-events-auto"
+                >
+                    <div>
+                        <h1 className="text-2xl mb-4">Add Point</h1>
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-2">
+                            <label className="block mb-1">标题:</label>
+                            <input 
+                                value={title} 
+                                onChange={(e) => setTitle(e.target.value)} 
+                                className={`border rounded p-2 w-full ${titleError ? 'border-red-500' : 'border-gray-300'}`} 
+                            />
+                            </div>
+                            <div className="mb-2">
+                                <label className="block mb-1">详细:</label>
+                                <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="border rounded p-2 w-full h-32" />
+                            </div>
+                            <div className="mb-2">
+                                <label className="block mb-1">主线:</label>
+                                <input 
+                                    list="mainlines" 
+                                    value={main_line} 
+                                    onChange={(e) => setMainLine(e.target.value)} 
+                                    className="border rounded p-2 w-full" 
+                                />
+                                <datalist id="mainlines">
+                                    <option value="数域拓展" />
+                                    <option value="数量关系" />
+                                    <option value="谜题游戏" />
+                                    <option value="空间观念" />
+                                    <option value="分析推理" />
+                                    <option value="应用意识" />
+                                    <option value="运算技能" />
+                                    <option value="代数关系" />
+                                    <option value="计算原理" />
+                                    <option value="特殊技巧" />
+                                </datalist>
+                            </div>
+                            {upstreamPoints.map((point, index) => (
+                                <div key={index} className="mb-2 flex items-center">
+                                    <label className="block mb-1 mr-2">上游知识点:</label>
+                                    <Select
+                                        options={options}
+                                        value={{ value: upstreamPoints[index].id,label: points.find(option => option.id === upstreamPoints[index].id )?.title || "" }}
+                                        onChange={(selectedOption) => {
+                                            if (selectedOption) {
+                                                handleUpstreamPointChange(index, 'id', selectedOption.value);
+                                            }
+                                        }}
+                                        className=" rounded w-36 mr-2 flex-grow"
+                                    />
+
+                                    <label className="block mb-1 mr-2">权重:</label>
+                                    <input 
+                                        type="number" 
+                                        value={point.weight} 
+                                        onChange={(e) => handleUpstreamPointChange(index, 'weight', Number(e.target.value))} 
+                                        min="1"
+                                        className="border rounded p-2 w-16"
+                                    />
+                                </div>
+                            ))}
+                            <div className="mb-2">
+                                <button type="button" onClick={handleAddUpstreamPoint} className="border rounded p-2 mr-2">+ 添加</button>
+                                <button type="button" onClick={handleRemoveUpstreamPoint} className="border rounded p-2">- 删除</button>
+                            </div>
+                            <button type="submit" className="bg-amber-100 rounded p-2">Submit</button>
+                        </form>
+                    </div>
+                </motion.div>
+            )}
+            </AnimatePresence>
+        </div>
+        <div className="fixed top-14 left-4 z-50 h-18"> 
+            <div className=" items-center flex">
+            <button 
+                className="focus:outline-none"
+                onClick={handleSearchIconClick}
+            >
+                <MagnifyingGlassIcon className="left-4 h-7 w-7 m-2" />
+            </button>
+            {showSearch && (
+                <>
+                    <input 
+                        value={searchTerm} 
+                        onChange={(e) => setSearchTerm(e.target.value)} 
+                        className="border rounded p-2 bg-white dark:bg-slate-600" 
+                        placeholder="Search node..."
+                    />
+                    <button 
+                        className="absolute top-3 right-3 focus:outline-none" 
+                        onClick={() => setSearchTerm('')}
+                    >
+                        <XMarkIcon className="h-5 w-5" />
+                    </button>
+                </>
+                )
+            }
+            </div>
+            {showSearch && matchedNodes.length > 0 && (
+                <div className="border rounded mt-2 top-10 left-12 bg-white dark:bg-slate-600 absolute">
+                    {matchedNodes.map(node => (
+                        <div 
+                            key={node.id} 
+                            className="p-2 hover:bg-gray-200 cursor-pointer"
+                            onClick={() => centerAndHighlightNode(node)}
+                        >
+                            {node.title}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    </div>
     );
 };
 
