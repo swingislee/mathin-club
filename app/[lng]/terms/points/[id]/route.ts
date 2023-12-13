@@ -1,3 +1,5 @@
+//app\[lng]\terms\points\[id]\route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { updatePoint, getPointById, deletePoint } from '../route';  // 确保路径正确
 

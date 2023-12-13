@@ -1,3 +1,5 @@
+//app\[lng]\terms\points\route.ts
+
 import { type NextRequest } from 'next/server';
 import { pool } from '@/database/db';
 

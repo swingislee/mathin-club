@@ -12,6 +12,7 @@ const Stars = () => {
         title: string;
         description: string;
         main_line:string;
+        order:number;
         x: number;
         y: number;
     }
@@ -68,7 +69,6 @@ const Stars = () => {
         }
     }, [searchTerm, points]);
 
-
     
     const fetchAndUpdateGraph = async () => {
         const data = await fetch('points').then(response => response.json());
@@ -96,7 +96,6 @@ const Stars = () => {
     const options = points.map(p => ({ value: p.id, label: p.title }));
 
     useEffect(() => {
-        console.log(upstreamPoints)
         if (!points.length) return;
 
         const width = window.innerWidth;
@@ -137,7 +136,7 @@ const Stars = () => {
                     return (sourceRadius + targetRadius)*link.weight ;
                 })
             )
-            .force("charge", d3.forceManyBody().strength(-100))
+            .force("charge", d3.forceManyBody().strength(-200))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("collide", d3.forceCollide<Point>().radius(d => d.title.length * 0.4 * remInPixels));
         
@@ -247,10 +246,7 @@ const Stars = () => {
     
         d3.select(svgElement).transition().duration(750).call((zoomRef.current as any).transform, transform);
     };
-    
-    
-    
-            
+                
     const toggleDrawer = () => {
         setIsOpen(!isOpen);
     };
@@ -488,6 +484,8 @@ const Stars = () => {
                     <div>
                         <label htmlFor="upstream_id" className="block text-sm font-medium text-black dark:text-white">上游:</label>
                         <Select
+                            classNamePrefix="react-select"
+                            unstyled={true}   
                             value={{ value: upstream_id, label: points.find(option => option.id === upstream_id)?.title }}
                             options={points.map(point => ({ value: point.id, label: point.title }))}
                             onChange={option => option && setUpstreamId(option.value)}
@@ -497,6 +495,8 @@ const Stars = () => {
                     <div>
                         <label htmlFor="downstream_id" className="block text-sm font-medium text-black dark:text-white">下游:</label>
                         <Select
+                            classNamePrefix="react-select"
+                            unstyled={true}   
                             value={{ value: downstream_id, label: points.find(option => option.id === downstream_id)?.title }}
                             options={points.map(point => ({ value: point.id, label: point.title }))}
                             onChange={option => option && setDownstreamId(option.value)}
@@ -586,6 +586,8 @@ const Stars = () => {
                                 <div key={index} className="mb-2 flex items-center">
                                     <label className="block mb-1 mr-2">上游知识点:</label>
                                     <Select
+                                        unstyled={true}                                        
+                                        classNamePrefix="react-select"
                                         options={options}
                                         value={{ value: upstreamPoints[index].id,label: points.find(option => option.id === upstreamPoints[index].id )?.title || "" }}
                                         onChange={(selectedOption) => {
@@ -593,7 +595,7 @@ const Stars = () => {
                                                 handleUpstreamPointChange(index, 'id', selectedOption.value);
                                             }
                                         }}
-                                        className=" rounded w-36 mr-2 flex-grow"
+                                        className="rounded  w-36 mr-2 border hover:outline-black flex-grow"
                                     />
 
                                     <label className="block mb-1 mr-2">权重:</label>

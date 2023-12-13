@@ -12,3 +12,38 @@ body {
     background-color: rgb(100 116 139);  /*border-slate-500*/
 }
 
+
+/* 为 react-select 容器添加背景和边框样式 
+.react-select__container--is-focused{
+    @apply  border border-black;
+}
+  /* 当下拉菜单打开时，容器的样式 */
+
+ 
+  .react-select__control {
+    @apply rounded -m-0.5 pl-2 border-2 border-transparent  ;
+  }
+
+  .react-select__control--is-focused {
+    @apply border-2 -m-0.5 border-black  dark:border-white;
+  }
+  
+  /* 覆盖下拉菜单的背景色 */
+  .react-select__menu {
+    @apply rounded-md  bg-white dark:bg-slate-500;
+  }
+  .react-select__option {
+    @apply  my-2 px-3 py-2;
+  }
+
+  /* 覆盖下拉选项焦点和悬停状态的样式 */
+  .react-select__option--is-focused {
+    @apply  rounded bg-amber-100 dark:bg-slate-400;
+  }
+
+
+  /* 覆盖下拉选项选中状态的样式 */
+  .react-select__option--is-selected {
+    @apply rounded bg-amber-200 text-slate-600 dark:bg-slate-700 dark:text-amber-100;
+  }
+  
